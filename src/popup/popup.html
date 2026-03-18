@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Corner Text</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <h1>Corner Text</h1>
+
+  <label for="overlay-text">Overlay text</label>
+  <input id="overlay-text" type="text" placeholder="Hello, world!" maxlength="80" />
+
+  <label class="toggle-row">
+    <input id="enabled-toggle" type="checkbox" />
+    <span>Enabled</span>
+  </label>
+
+  <button id="save-btn">Save</button>
+  <p id="status" aria-live="polite"></p>
+
+  <script src="../../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

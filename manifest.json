@@ -1,0 +1,43 @@
+{
+  "manifest_version": 2,
+  "name": "Corner Text",
+  "version": "1.0.0",
+  "description": "Displays a text overlay in the top-right corner of every page.",
+
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png"
+  },
+
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+
+  "background": {
+    "scripts": [
+      "node_modules/webextension-polyfill/dist/browser-polyfill.min.js",
+      "src/background/background.js"
+    ]
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "node_modules/webextension-polyfill/dist/browser-polyfill.min.js",
+        "src/content/content.js"
+      ],
+      "css": ["src/content/content.css"],
+      "run_at": "document_end"
+    }
+  ],
+
+  "browser_action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "48": "icons/icon-48.png"
+    },
+    "default_title": "Corner Text"
+  }
+}
