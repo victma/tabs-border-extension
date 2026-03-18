@@ -5,7 +5,7 @@
 browser.runtime.onInstalled.addListener(() => {
   // Set default storage values on first install
   browser.storage.local.set({
-    overlayText: "Hello, world!",
+    overlayText: "",
     enabled: true,
   });
   console.log("[CornerText] Extension installed. Default settings written.");
