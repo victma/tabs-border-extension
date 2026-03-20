@@ -133,3 +133,76 @@ fieldset legend {
 }
 .link-btn:hover { color: #555 !important; }
 
+.hint {
+  font-size: 11px;
+  color: #888;
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.domain-list {
+  list-style: none;
+  margin-bottom: 8px;
+}
+.domain-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.domain-list li:last-child { border-bottom: none; }
+.domain-list .remove-domain {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+.domain-list .remove-domain:hover { color: #e04080; }
+
+.add-domain-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.add-domain-row input[type="text"] {
+  flex: 1;
+  margin-bottom: 0;
+  font-size: 12px;
+  padding: 5px 8px;
+}
+.add-btn {
+  padding: 5px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.add-btn:hover { background: #e8e8e8; }
+
+.add-current-btn {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+}
+.add-current-btn:hover { background: #e8e8e8; }
+.add-current-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.add-current-btn:disabled:hover { background: #f5f5f5; }
+.add-current-btn span { font-weight: 600; }
+

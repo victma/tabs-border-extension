@@ -43,11 +43,18 @@ function updateOverlay() {
   if (el) el.textContent = getDisplayTitle();
 }
 
+let whitelist = [];
+
+function isWhitelisted() {
+  return whitelist.length === 0 || whitelist.includes(hostname);
+}
+
 function syncVisibility(enabled) {
-  if (enabled && showTitle) ensureOverlay();
+  const active = enabled && isWhitelisted();
+  if (active && showTitle) ensureOverlay();
   else document.getElementById(OVERLAY_ID)?.remove();
 
-  if (enabled && showBorder) ensureFrame();
+  if (active && showBorder) ensureFrame();
   else document.getElementById(FRAME_ID)?.remove();
 }
 
@@ -70,6 +77,7 @@ browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) 
   tabId = settings?.tabId ?? null;
   showTitle = settings?.showTitle !== false;
   showBorder = settings?.showBorder !== false;
+  whitelist = settings?.whitelist || [];
   syncVisibility(settings?.enabled !== false);
 });
 
@@ -138,6 +146,7 @@ browser.storage.onChanged.addListener((changes) => {
   let needSync = false;
   if (changes.showTitle) { showTitle = changes.showTitle.newValue !== false; needSync = true; }
   if (changes.showBorder) { showBorder = changes.showBorder.newValue !== false; needSync = true; }
+  if (changes.whitelist) { whitelist = changes.whitelist.newValue || []; needSync = true; }
   if (changes.enabled || needSync) {
     browser.storage.local.get("enabled").then(({ enabled }) => {
       syncVisibility(enabled !== false);

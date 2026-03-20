@@ -49,6 +49,17 @@
     <button type="button" id="clear-domain-color" class="link-btn" hidden>Clear domain default</button>
   </div>
 
+  <fieldset id="whitelist-settings">
+    <legend>Allowed domains</legend>
+    <p id="whitelist-hint" class="hint">Active on all domains</p>
+    <ul id="whitelist-list" class="domain-list"></ul>
+    <div class="add-domain-row">
+      <input id="whitelist-input" type="text" placeholder="example.com" />
+      <button type="button" id="whitelist-add" class="add-btn">Add</button>
+    </div>
+    <button type="button" id="whitelist-add-current" class="add-current-btn">Add <span id="whitelist-current-domain"></span></button>
+  </fieldset>
+
   <script src="../../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
   <script src="popup.js"></script>
 </body>

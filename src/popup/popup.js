@@ -15,8 +15,16 @@ const domainNameEl = document.getElementById("domain-name");
 const setDomainDefaultsBtn = document.getElementById("set-domain-defaults");
 const clearDomainColorBtn = document.getElementById("clear-domain-color");
 
+const whitelistHint = document.getElementById("whitelist-hint");
+const whitelistList = document.getElementById("whitelist-list");
+const whitelistInput = document.getElementById("whitelist-input");
+const whitelistAddBtn = document.getElementById("whitelist-add");
+const whitelistAddCurrentBtn = document.getElementById("whitelist-add-current");
+const whitelistCurrentDomain = document.getElementById("whitelist-current-domain");
+
 let activeTabId = null;
 let activeHostname = "";
+let currentWhitelist = [];
 
 function setColor(hex) {
   tabColor.value = hex;
@@ -28,8 +36,8 @@ function setColor(hex) {
 
 // Load current settings when popup opens
 async function loadSettings() {
-  const { enabled, showTitle, showBorder, domainDefaults = {}, tabSettings = {} } =
-    await browser.storage.local.get(["enabled", "showTitle", "showBorder", "domainDefaults", "tabSettings"]);
+  const { enabled, showTitle, showBorder, domainDefaults = {}, tabSettings = {}, whitelist = [] } =
+    await browser.storage.local.get(["enabled", "showTitle", "showBorder", "domainDefaults", "tabSettings", "whitelist"]);
   enabledToggle.checked = enabled ?? true;
   showTitleToggle.checked = showTitle ?? true;
   showBorderToggle.checked = showBorder ?? true;
@@ -45,6 +53,10 @@ async function loadSettings() {
 
   domainNameEl.textContent = activeHostname || "(unknown)";
   clearDomainColorBtn.hidden = !domain;
+
+  currentWhitelist = whitelist;
+  whitelistCurrentDomain.textContent = activeHostname || "(unknown)";
+  renderWhitelist();
 }
 loadSettings();
 
@@ -105,4 +117,56 @@ clearDomainColorBtn.addEventListener("click", () => {
     title: "",
   });
   clearDomainColorBtn.hidden = true;
+});
+
+// --- Whitelist ---
+
+function saveWhitelist() {
+  browser.storage.local.set({ whitelist: currentWhitelist });
+}
+
+function renderWhitelist() {
+  whitelistHint.hidden = currentWhitelist.length > 0;
+  whitelistList.innerHTML = "";
+  for (const domain of currentWhitelist) {
+    const li = document.createElement("li");
+    li.textContent = domain;
+    const btn = document.createElement("button");
+    btn.className = "remove-domain";
+    btn.textContent = "\u00d7";
+    btn.addEventListener("click", () => {
+      currentWhitelist = currentWhitelist.filter((d) => d !== domain);
+      saveWhitelist();
+      renderWhitelist();
+    });
+    li.appendChild(btn);
+    whitelistList.appendChild(li);
+  }
+  const alreadyListed = currentWhitelist.includes(activeHostname);
+  whitelistAddCurrentBtn.disabled = alreadyListed || !activeHostname;
+}
+
+function addToWhitelist(domain) {
+  domain = domain.trim().toLowerCase();
+  if (!domain || currentWhitelist.includes(domain)) return;
+  currentWhitelist.push(domain);
+  currentWhitelist.sort();
+  saveWhitelist();
+  renderWhitelist();
+}
+
+whitelistAddCurrentBtn.addEventListener("click", () => {
+  addToWhitelist(activeHostname);
+});
+
+whitelistAddBtn.addEventListener("click", () => {
+  addToWhitelist(whitelistInput.value);
+  whitelistInput.value = "";
+});
+
+whitelistInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    addToWhitelist(whitelistInput.value);
+    whitelistInput.value = "";
+  }
 });
