@@ -1,6 +1,6 @@
-# Corner Text — Firefox Extension Boilerplate
+# TabTint — Firefox Extension
 
-Displays a configurable text overlay in the top-right corner of every page.
+Displays a configurable text overlay and colored border on every tab.
 Built with [`webextension-polyfill`](https://github.com/mozilla/webextension-polyfill) for Firefox/Chrome compatibility.
 
 ## Project structure

@@ -2,8 +2,8 @@
 // Injected into every page. Has access to the page DOM but limited browser.* API.
 // Communicates with background.js via browser.runtime.sendMessage.
 
-const OVERLAY_ID = "corner-text-overlay";
-const FRAME_ID = "viewport-border-frame";
+const OVERLAY_ID = "tabtint-overlay";
+const FRAME_ID = "tabtint-border-frame";
 
 // The current configured text. Empty/undefined means "use tab title".
 let configuredText = "";

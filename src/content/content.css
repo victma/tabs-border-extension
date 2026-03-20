@@ -1,6 +1,6 @@
 /* content.css — injected alongside content.js */
 
-#viewport-border-frame {
+#tabtint-border-frame {
   position: fixed;
   inset: 0;
   z-index: 2147483646;
@@ -9,7 +9,7 @@
   box-sizing: border-box;
 }
 
-#corner-text-overlay {
+#tabtint-overlay {
   /* Positioning */
   position: fixed;
   top: 0;

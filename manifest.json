@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Corner Text",
+  "name": "TabTint",
   "version": "1.0.0",
-  "description": "Displays a text overlay in the top-right corner of every page.",
+  "description": "Displays a configurable text overlay and colored border on every tab.",
 
   "icons": {
     "48": "icons/icon-48.png",
@@ -38,6 +38,6 @@
     "default_icon": {
       "48": "icons/icon-48.png"
     },
-    "default_title": "Corner Text"
+    "default_title": "TabTint"
   }
 }

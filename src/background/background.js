@@ -12,12 +12,12 @@ browser.runtime.onInstalled.addListener(() => {
     showText: true,
     showBorder: true,
   });
-  console.log("[CornerText] Extension installed. Default settings written.");
+  console.log("[TabTint] Extension installed. Default settings written.");
 });
 
 // Listen for messages from content scripts or the popup
 browser.runtime.onMessage.addListener((message, sender) => {
-  console.log("[CornerText] Message received:", message, "from:", sender);
+  console.log("[TabTint] Message received:", message, "from:", sender);
 
   if (message.type === "GET_SETTINGS") {
     return browser.storage.local
