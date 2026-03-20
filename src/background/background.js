@@ -6,6 +6,8 @@ browser.runtime.onInstalled.addListener(() => {
   // Set default storage values on first install
   browser.storage.local.set({
     overlayText: "",
+    borderColor: "",
+    tabSettings: {},
     enabled: true,
   });
   console.log("[CornerText] Extension installed. Default settings written.");
@@ -16,7 +18,42 @@ browser.runtime.onMessage.addListener((message, sender) => {
   console.log("[CornerText] Message received:", message, "from:", sender);
 
   if (message.type === "GET_SETTINGS") {
-    // Return current settings to whoever asked
-    return browser.storage.local.get(["overlayText", "enabled"]);
+    return browser.storage.local
+      .get(["overlayText", "borderColor", "tabSettings", "enabled"])
+      .then((settings) => {
+        const tabId = sender.tab?.id;
+        const perTab = tabId != null ? settings.tabSettings?.[tabId] : undefined;
+        return {
+          overlayText: perTab?.text || settings.overlayText,
+          borderColor: perTab?.color || settings.borderColor,
+          enabled: settings.enabled,
+          tabId,
+        };
+      });
   }
+
+  if (message.type === "SET_TAB_SETTINGS") {
+    const { tabId, color, text } = message;
+    return browser.storage.local.get("tabSettings").then(({ tabSettings = {} }) => {
+      const entry = { ...tabSettings[tabId] };
+      if (color !== undefined) entry.color = color;
+      if (text !== undefined) entry.text = text;
+      if (entry.color || entry.text) {
+        tabSettings[tabId] = entry;
+      } else {
+        delete tabSettings[tabId];
+      }
+      return browser.storage.local.set({ tabSettings });
+    });
+  }
+});
+
+// Clean up per-tab settings when a tab is closed
+browser.tabs.onRemoved.addListener((tabId) => {
+  browser.storage.local.get("tabSettings").then(({ tabSettings = {} }) => {
+    if (tabId in tabSettings) {
+      delete tabSettings[tabId];
+      browser.storage.local.set({ tabSettings });
+    }
+  });
 });

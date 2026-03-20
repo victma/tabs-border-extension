@@ -1,21 +1,30 @@
 /* content.css — injected alongside content.js */
 
+#viewport-border-frame {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  border: 6px solid #000;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
 #corner-text-overlay {
   /* Positioning */
   position: fixed;
-  top: 12px;
-  right: 12px;
+  top: 0;
+  right: 0;
   z-index: 2147483647; /* max z-index — always on top */
 
   /* Appearance */
-  background: rgba(0, 0, 0, 0.72);
-  color: #ffffff;
+  background: #fff;
+  color: #000;
   font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border: 6px solid #000;
 
   /* Don't interfere with the page */
   pointer-events: none;
