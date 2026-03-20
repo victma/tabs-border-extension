@@ -13,6 +13,7 @@ let borderColor = DEFAULT_BORDER_COLOR;
 
 // Set by the background script so we can look up per-tab settings
 let tabId = null;
+const hostname = location.hostname;
 let showTitle = true;
 let showBorder = true;
 
@@ -63,7 +64,7 @@ if (titleEl) {
 }
 
 // Fetch settings and initialise
-browser.runtime.sendMessage({ type: "GET_SETTINGS" }).then((settings) => {
+browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) => {
   configuredTitle = settings?.overlayTitle ?? "";
   borderColor = settings?.borderColor || DEFAULT_BORDER_COLOR;
   tabId = settings?.tabId ?? null;
@@ -89,23 +90,49 @@ browser.storage.onChanged.addListener((changes) => {
       configuredTitle = newEntry.title || "";
       updateOverlay();
     }
-    if (newEntry.color !== oldEntry.color) {
-      applyBorderColor(newEntry.color);
-    }
-  } else {
-    // Global defaults changed — apply only if this tab has no per-tab override
-    if (changes.overlayTitle || changes.borderColor) {
-      browser.storage.local.get("tabSettings").then(({ tabSettings = {} }) => {
-        const perTab = tabSettings[tabId] || {};
-        if (changes.overlayTitle && !perTab.title) {
-          configuredTitle = changes.overlayTitle.newValue ?? "";
-          updateOverlay();
-        }
-        if (changes.borderColor && !perTab.color) {
-          applyBorderColor(changes.borderColor.newValue);
-        }
+    if (newEntry.title !== oldEntry.title && !newEntry.title) {
+      // Per-tab title cleared — fall back to domain then global
+      browser.storage.local.get("domainDefaults").then(({ domainDefaults = {} }) => {
+        configuredTitle = domainDefaults[hostname]?.title || "";
+        updateOverlay();
       });
     }
+    if (newEntry.color !== oldEntry.color) {
+      // Per-tab color changed — resolve full fallback chain
+      if (newEntry.color) {
+        applyBorderColor(newEntry.color);
+      } else {
+        browser.storage.local.get("domainDefaults").then(({ domainDefaults = {} }) => {
+          applyBorderColor(domainDefaults[hostname]?.color || "");
+        });
+      }
+    }
+  }
+
+  // Domain defaults changed — apply if this tab has no per-tab override
+  if (changes.domainDefaults && hostname) {
+    const newDomain = (changes.domainDefaults.newValue || {})[hostname] || {};
+    const oldDomain = (changes.domainDefaults.oldValue || {})[hostname] || {};
+    browser.storage.local.get("tabSettings").then(({ tabSettings = {} }) => {
+      const perTab = tabSettings[tabId] || {};
+      if (newDomain.color !== oldDomain.color && !perTab.color) {
+        applyBorderColor(newDomain.color || "");
+      }
+      if (newDomain.title !== oldDomain.title && !perTab.title) {
+        configuredTitle = newDomain.title || "";
+        updateOverlay();
+      }
+    });
+  }
+
+  // Global defaults changed — apply only if no per-tab or per-domain override
+  if (changes.overlayTitle) {
+    browser.storage.local.get(["tabSettings", "domainDefaults"]).then(({ tabSettings = {}, domainDefaults = {} }) => {
+      if (!tabSettings[tabId]?.title && !domainDefaults[hostname]?.title) {
+        configuredTitle = changes.overlayTitle.newValue ?? "";
+        updateOverlay();
+      }
+    });
   }
 
   let needSync = false;

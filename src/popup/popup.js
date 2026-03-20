@@ -11,8 +11,12 @@ const tabTitle = document.getElementById("tab-title");
 const tabColor = document.getElementById("tab-color");
 const colorPreview = document.getElementById("color-preview");
 const swatches = document.querySelectorAll(".swatch");
+const domainNameEl = document.getElementById("domain-name");
+const setDomainDefaultsBtn = document.getElementById("set-domain-defaults");
+const clearDomainColorBtn = document.getElementById("clear-domain-color");
 
 let activeTabId = null;
+let activeHostname = "";
 
 function setColor(hex) {
   tabColor.value = hex;
@@ -24,18 +28,23 @@ function setColor(hex) {
 
 // Load current settings when popup opens
 async function loadSettings() {
-  const { enabled, showTitle, showBorder, tabSettings = {} } =
-    await browser.storage.local.get(["enabled", "showTitle", "showBorder", "tabSettings"]);
+  const { enabled, showTitle, showBorder, domainDefaults = {}, tabSettings = {} } =
+    await browser.storage.local.get(["enabled", "showTitle", "showBorder", "domainDefaults", "tabSettings"]);
   enabledToggle.checked = enabled ?? true;
   showTitleToggle.checked = showTitle ?? true;
   showBorderToggle.checked = showBorder ?? true;
 
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   activeTabId = tab?.id ?? null;
+  activeHostname = tab?.url ? new URL(tab.url).hostname : "";
 
   const perTab = activeTabId != null ? tabSettings[activeTabId] : undefined;
-  tabTitle.value = perTab?.title || "";
-  setColor(perTab?.color || DEFAULT_COLOR);
+  const domain = domainDefaults[activeHostname];
+  tabTitle.value = perTab?.title || domain?.title || "";
+  setColor(perTab?.color || domain?.color || DEFAULT_COLOR);
+
+  domainNameEl.textContent = activeHostname || "(unknown)";
+  clearDomainColorBtn.hidden = !domain;
 }
 loadSettings();
 
@@ -74,4 +83,26 @@ showTitleToggle.addEventListener("change", () => {
 });
 showBorderToggle.addEventListener("change", () => {
   browser.storage.local.set({ showBorder: showBorderToggle.checked });
+});
+
+setDomainDefaultsBtn.addEventListener("click", () => {
+  if (!activeHostname) return;
+  browser.runtime.sendMessage({
+    type: "SET_DOMAIN_DEFAULTS",
+    hostname: activeHostname,
+    color: tabColor.value,
+    title: tabTitle.value,
+  });
+  clearDomainColorBtn.hidden = false;
+});
+
+clearDomainColorBtn.addEventListener("click", () => {
+  if (!activeHostname) return;
+  browser.runtime.sendMessage({
+    type: "SET_DOMAIN_DEFAULTS",
+    hostname: activeHostname,
+    color: "",
+    title: "",
+  });
+  clearDomainColorBtn.hidden = true;
 });

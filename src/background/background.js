@@ -6,7 +6,7 @@ browser.runtime.onInstalled.addListener(() => {
   // Set default storage values on first install
   browser.storage.local.set({
     overlayTitle: "",
-    borderColor: "",
+    domainDefaults: {},
     tabSettings: {},
     enabled: true,
     showTitle: true,
@@ -20,20 +20,34 @@ browser.runtime.onMessage.addListener((message, sender) => {
   console.log("[TabTint] Message received:", message, "from:", sender);
 
   if (message.type === "GET_SETTINGS") {
+    const hostname = message.hostname || "";
     return browser.storage.local
-      .get(["overlayTitle", "borderColor", "tabSettings", "enabled", "showTitle", "showBorder"])
+      .get(["overlayTitle", "domainDefaults", "tabSettings", "enabled", "showTitle", "showBorder"])
       .then((settings) => {
         const tabId = sender.tab?.id;
         const perTab = tabId != null ? settings.tabSettings?.[tabId] : undefined;
+        const domain = hostname ? settings.domainDefaults?.[hostname] : undefined;
         return {
-          overlayTitle: perTab?.title || settings.overlayTitle,
-          borderColor: perTab?.color || settings.borderColor,
+          overlayTitle: perTab?.title || domain?.title || settings.overlayTitle,
+          borderColor: perTab?.color || domain?.color || "",
           enabled: settings.enabled,
           showTitle: settings.showTitle,
           showBorder: settings.showBorder,
           tabId,
         };
       });
+  }
+
+  if (message.type === "SET_DOMAIN_DEFAULTS") {
+    const { hostname, color, title } = message;
+    return browser.storage.local.get("domainDefaults").then(({ domainDefaults = {} }) => {
+      if (color || title) {
+        domainDefaults[hostname] = { color, title };
+      } else {
+        delete domainDefaults[hostname];
+      }
+      return browser.storage.local.set({ domainDefaults });
+    });
   }
 
   if (message.type === "SET_TAB_SETTINGS") {

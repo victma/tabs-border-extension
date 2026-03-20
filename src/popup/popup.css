@@ -106,3 +106,30 @@ fieldset legend {
   border-radius: 4px;
 }
 
+.domain-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.domain-actions button {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+}
+.domain-actions button:hover { background: #e8e8e8; }
+#domain-name { font-weight: 600; }
+.link-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #888 !important;
+  font-size: 11px !important;
+  text-decoration: underline;
+}
+.link-btn:hover { color: #555 !important; }
+
