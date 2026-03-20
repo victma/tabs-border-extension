@@ -9,6 +9,8 @@ browser.runtime.onInstalled.addListener(() => {
     borderColor: "",
     tabSettings: {},
     enabled: true,
+    showText: true,
+    showBorder: true,
   });
   console.log("[CornerText] Extension installed. Default settings written.");
 });
@@ -19,7 +21,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
 
   if (message.type === "GET_SETTINGS") {
     return browser.storage.local
-      .get(["overlayText", "borderColor", "tabSettings", "enabled"])
+      .get(["overlayText", "borderColor", "tabSettings", "enabled", "showText", "showBorder"])
       .then((settings) => {
         const tabId = sender.tab?.id;
         const perTab = tabId != null ? settings.tabSettings?.[tabId] : undefined;
@@ -27,6 +29,8 @@ browser.runtime.onMessage.addListener((message, sender) => {
           overlayText: perTab?.text || settings.overlayText,
           borderColor: perTab?.color || settings.borderColor,
           enabled: settings.enabled,
+          showText: settings.showText,
+          showBorder: settings.showBorder,
           tabId,
         };
       });

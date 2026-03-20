@@ -53,6 +53,7 @@ input[type="text"]:focus { border-color: #4a90e2; }
   cursor: pointer;
 }
 .toggle-row input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
+.sub-toggle { margin-left: 23px; margin-bottom: 10px; }
 
 fieldset {
   border: 1px solid #d0d0d0;

@@ -11,45 +11,43 @@ let configuredText = "";
 const DEFAULT_BORDER_COLOR = "#a21c1c";
 let borderColor = DEFAULT_BORDER_COLOR;
 
-// Set by the background script so we can look up per-tab colors
+// Set by the background script so we can look up per-tab settings
 let tabId = null;
+let showText = true;
+let showBorder = true;
 
 function getDisplayText() {
   return configuredText || document.title;
 }
 
-function createFrame() {
-  if (document.getElementById(FRAME_ID)) return;
+function ensureOverlay() {
+  if (document.getElementById(OVERLAY_ID)) return;
+  const el = document.createElement("div");
+  el.id = OVERLAY_ID;
+  el.textContent = getDisplayText();
+  el.style.borderColor = borderColor;
+  document.body.appendChild(el);
+}
 
+function ensureFrame() {
+  if (document.getElementById(FRAME_ID)) return;
   const frame = document.createElement("div");
   frame.id = FRAME_ID;
   frame.style.borderColor = borderColor;
   document.body.appendChild(frame);
 }
 
-function removeFrame() {
-  document.getElementById(FRAME_ID)?.remove();
-}
-
-function createOverlay() {
-  if (document.getElementById(OVERLAY_ID)) return;
-
-  const el = document.createElement("div");
-  el.id = OVERLAY_ID;
-  el.textContent = getDisplayText();
-  el.style.borderColor = borderColor;
-  document.body.appendChild(el);
-  createFrame();
-}
-
-function removeOverlay() {
-  document.getElementById(OVERLAY_ID)?.remove();
-  removeFrame();
-}
-
 function updateOverlay() {
   const el = document.getElementById(OVERLAY_ID);
   if (el) el.textContent = getDisplayText();
+}
+
+function syncVisibility(enabled) {
+  if (enabled && showText) ensureOverlay();
+  else document.getElementById(OVERLAY_ID)?.remove();
+
+  if (enabled && showBorder) ensureFrame();
+  else document.getElementById(FRAME_ID)?.remove();
 }
 
 // Watch for title changes (SPAs, dynamic pages) — only matters when using the default
@@ -69,7 +67,9 @@ browser.runtime.sendMessage({ type: "GET_SETTINGS" }).then((settings) => {
   configuredText = settings?.overlayText ?? "";
   borderColor = settings?.borderColor || DEFAULT_BORDER_COLOR;
   tabId = settings?.tabId ?? null;
-  if (settings?.enabled !== false) createOverlay();
+  showText = settings?.showText !== false;
+  showBorder = settings?.showBorder !== false;
+  syncVisibility(settings?.enabled !== false);
 });
 
 function applyBorderColor(color) {
@@ -107,7 +107,13 @@ browser.storage.onChanged.addListener((changes) => {
       });
     }
   }
-  if (changes.enabled) {
-    changes.enabled.newValue ? createOverlay() : removeOverlay();
+
+  let needSync = false;
+  if (changes.showText) { showText = changes.showText.newValue !== false; needSync = true; }
+  if (changes.showBorder) { showBorder = changes.showBorder.newValue !== false; needSync = true; }
+  if (changes.enabled || needSync) {
+    browser.storage.local.get("enabled").then(({ enabled }) => {
+      syncVisibility(enabled !== false);
+    });
   }
 });

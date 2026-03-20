@@ -5,6 +5,8 @@
 const DEFAULT_COLOR = "#a21c1c";
 
 const enabledToggle = document.getElementById("enabled-toggle");
+const showTextToggle = document.getElementById("show-text-toggle");
+const showBorderToggle = document.getElementById("show-border-toggle");
 const tabText = document.getElementById("tab-text");
 const tabColor = document.getElementById("tab-color");
 const colorPreview = document.getElementById("color-preview");
@@ -22,11 +24,11 @@ function setColor(hex) {
 
 // Load current settings when popup opens
 async function loadSettings() {
-  const { enabled, tabSettings = {} } = await browser.storage.local.get([
-    "enabled",
-    "tabSettings",
-  ]);
+  const { enabled, showText, showBorder, tabSettings = {} } =
+    await browser.storage.local.get(["enabled", "showText", "showBorder", "tabSettings"]);
   enabledToggle.checked = enabled ?? true;
+  showTextToggle.checked = showText ?? true;
+  showBorderToggle.checked = showBorder ?? true;
 
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   activeTabId = tab?.id ?? null;
@@ -66,4 +68,10 @@ tabText.addEventListener("input", saveTabSettings);
 
 enabledToggle.addEventListener("change", () => {
   browser.storage.local.set({ enabled: enabledToggle.checked });
+});
+showTextToggle.addEventListener("change", () => {
+  browser.storage.local.set({ showText: showTextToggle.checked });
+});
+showBorderToggle.addEventListener("change", () => {
+  browser.storage.local.set({ showBorder: showBorderToggle.checked });
 });
