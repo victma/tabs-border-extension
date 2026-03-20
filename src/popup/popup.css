@@ -2,7 +2,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  width: 300px;
+  width: 308px;
   padding: 16px;
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 13px;
@@ -105,24 +105,3 @@ fieldset legend {
   border-radius: 4px;
 }
 
-button {
-  width: 100%;
-  padding: 8px;
-  background: #1a1a1a;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-button:hover { background: #333; }
-
-#status {
-  margin-top: 8px;
-  min-height: 16px;
-  font-size: 11px;
-  color: #4a90e2;
-  text-align: center;
-}

@@ -9,8 +9,6 @@ const tabText = document.getElementById("tab-text");
 const tabColor = document.getElementById("tab-color");
 const colorPreview = document.getElementById("color-preview");
 const swatches = document.querySelectorAll(".swatch");
-const saveBtn = document.getElementById("save-btn");
-const status = document.getElementById("status");
 
 let activeTabId = null;
 
@@ -39,30 +37,33 @@ async function loadSettings() {
 }
 loadSettings();
 
+function saveTabSettings() {
+  if (activeTabId == null) return;
+  browser.runtime.sendMessage({
+    type: "SET_TAB_SETTINGS",
+    tabId: activeTabId,
+    text: tabText.value,
+    color: tabColor.value === DEFAULT_COLOR ? "" : tabColor.value,
+  });
+}
+
 swatches.forEach((s) =>
-  s.addEventListener("click", () => setColor(s.dataset.color))
+  s.addEventListener("click", () => {
+    setColor(s.dataset.color);
+    saveTabSettings();
+  })
 );
 
 tabColor.addEventListener("input", () => {
   const hex = tabColor.value;
   if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
     setColor(hex);
+    saveTabSettings();
   }
 });
 
-// Save settings and show feedback
-saveBtn.addEventListener("click", async () => {
-  await browser.storage.local.set({ enabled: enabledToggle.checked });
+tabText.addEventListener("input", saveTabSettings);
 
-  if (activeTabId != null) {
-    await browser.runtime.sendMessage({
-      type: "SET_TAB_SETTINGS",
-      tabId: activeTabId,
-      text: tabText.value,
-      color: tabColor.value === DEFAULT_COLOR ? "" : tabColor.value,
-    });
-  }
-
-  status.textContent = "Saved!";
-  setTimeout(() => (status.textContent = ""), 1500);
+enabledToggle.addEventListener("change", () => {
+  browser.storage.local.set({ enabled: enabledToggle.checked });
 });
