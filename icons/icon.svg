@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <rect width="400" height="400" fill="none"/>
+
+  <!-- Window body -->
+  <rect x="60" y="140" width="280" height="200" rx="6" fill="none" stroke="#1a1a1a" stroke-width="20"/>
+
+  <!-- Tab shape — all purple, drawn on top -->
+  <path d="M100 140 L100 115 Q100 100 115 100 L185 100 Q200 100 200 115 L200 140" fill="none" stroke="#7B68EE" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Purple line between tab legs covering the window top edge -->
+  <line x1="90" y1="140" x2="210" y2="140" stroke="#7B68EE" stroke-width="28" stroke-linecap="butt"/>
+
+  <!-- Colorful border — left -->
+  <line x1="60" y1="155" x2="60" y2="240" stroke="#E85D75" stroke-width="28" stroke-linecap="round"/>
+  <line x1="60" y1="240" x2="60" y2="330" stroke="#F5A623" stroke-width="28" stroke-linecap="round"/>
+
+  <!-- Colorful border — bottom -->
+  <line x1="70" y1="340" x2="200" y2="340" stroke="#4ECDC4" stroke-width="28" stroke-linecap="round"/>
+  <line x1="200" y1="340" x2="330" y2="340" stroke="#7B68EE" stroke-width="28" stroke-linecap="round"/>
+
+  <!-- Colorful border — right -->
+  <line x1="340" y1="330" x2="340" y2="240" stroke="#E85D75" stroke-width="28" stroke-linecap="round"/>
+  <line x1="340" y1="240" x2="340" y2="155" stroke="#F5A623" stroke-width="28" stroke-linecap="round"/>
+
+  <!-- Colorful border — top (excluding tab area) -->
+  <line x1="330" y1="140" x2="210" y2="140" stroke="#4ECDC4" stroke-width="28" stroke-linecap="round"/>
+  <line x1="90" y1="140" x2="70" y2="140" stroke="#7B68EE" stroke-width="28" stroke-linecap="round"/>
+</svg>
