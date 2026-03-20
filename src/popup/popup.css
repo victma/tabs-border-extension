@@ -2,7 +2,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  width: 240px;
+  width: 300px;
   padding: 16px;
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 13px;
@@ -53,6 +53,57 @@ input[type="text"]:focus { border-color: #4a90e2; }
   cursor: pointer;
 }
 .toggle-row input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
+
+fieldset {
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+fieldset legend {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #555;
+  padding: 0 4px;
+}
+
+.color-swatches {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.swatch:hover { border-color: #888; }
+.swatch.selected { border-color: #1a1a1a; }
+
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.color-row input[type="text"] {
+  flex: 1;
+  margin-bottom: 0;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+.color-preview {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+}
 
 button {
   width: 100%;

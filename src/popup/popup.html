@@ -14,6 +14,28 @@
     <span>Enabled</span>
   </label>
 
+  <fieldset id="tab-settings">
+    <legend>Tab settings</legend>
+    <label for="tab-text">Text</label>
+    <input id="tab-text" type="text" placeholder="Tab title" />
+    <label>Color</label>
+    <div class="color-swatches" id="color-swatches">
+      <button type="button" class="swatch" data-color="#a21c1c" style="background:#a21c1c" title="#a21c1c"></button>
+      <button type="button" class="swatch" data-color="#e06c2e" style="background:#e06c2e" title="#e06c2e"></button>
+      <button type="button" class="swatch" data-color="#d4a017" style="background:#d4a017" title="#d4a017"></button>
+      <button type="button" class="swatch" data-color="#2e8b57" style="background:#2e8b57" title="#2e8b57"></button>
+      <button type="button" class="swatch" data-color="#17a2a2" style="background:#17a2a2" title="#17a2a2"></button>
+      <button type="button" class="swatch" data-color="#2e6ee0" style="background:#2e6ee0" title="#2e6ee0"></button>
+      <button type="button" class="swatch" data-color="#7b3ea1" style="background:#7b3ea1" title="#7b3ea1"></button>
+      <button type="button" class="swatch" data-color="#e04080" style="background:#e04080" title="#e04080"></button>
+      <button type="button" class="swatch" data-color="#1a1a1a" style="background:#1a1a1a" title="#1a1a1a"></button>
+    </div>
+    <div class="color-row">
+      <span id="color-preview" class="color-preview"></span>
+      <input id="tab-color" type="text" placeholder="#a21c1c" maxlength="7" />
+    </div>
+  </fieldset>
+
   <button id="save-btn">Save</button>
   <p id="status" aria-live="polite"></p>
 
