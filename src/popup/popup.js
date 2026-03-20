@@ -5,9 +5,9 @@
 const DEFAULT_COLOR = "#a21c1c";
 
 const enabledToggle = document.getElementById("enabled-toggle");
-const showTextToggle = document.getElementById("show-text-toggle");
+const showTitleToggle = document.getElementById("show-title-toggle");
 const showBorderToggle = document.getElementById("show-border-toggle");
-const tabText = document.getElementById("tab-text");
+const tabTitle = document.getElementById("tab-title");
 const tabColor = document.getElementById("tab-color");
 const colorPreview = document.getElementById("color-preview");
 const swatches = document.querySelectorAll(".swatch");
@@ -24,17 +24,17 @@ function setColor(hex) {
 
 // Load current settings when popup opens
 async function loadSettings() {
-  const { enabled, showText, showBorder, tabSettings = {} } =
-    await browser.storage.local.get(["enabled", "showText", "showBorder", "tabSettings"]);
+  const { enabled, showTitle, showBorder, tabSettings = {} } =
+    await browser.storage.local.get(["enabled", "showTitle", "showBorder", "tabSettings"]);
   enabledToggle.checked = enabled ?? true;
-  showTextToggle.checked = showText ?? true;
+  showTitleToggle.checked = showTitle ?? true;
   showBorderToggle.checked = showBorder ?? true;
 
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   activeTabId = tab?.id ?? null;
 
   const perTab = activeTabId != null ? tabSettings[activeTabId] : undefined;
-  tabText.value = perTab?.text || "";
+  tabTitle.value = perTab?.title || "";
   setColor(perTab?.color || DEFAULT_COLOR);
 }
 loadSettings();
@@ -44,7 +44,7 @@ function saveTabSettings() {
   browser.runtime.sendMessage({
     type: "SET_TAB_SETTINGS",
     tabId: activeTabId,
-    text: tabText.value,
+    title: tabTitle.value,
     color: tabColor.value === DEFAULT_COLOR ? "" : tabColor.value,
   });
 }
@@ -64,13 +64,13 @@ tabColor.addEventListener("input", () => {
   }
 });
 
-tabText.addEventListener("input", saveTabSettings);
+tabTitle.addEventListener("input", saveTabSettings);
 
 enabledToggle.addEventListener("change", () => {
   browser.storage.local.set({ enabled: enabledToggle.checked });
 });
-showTextToggle.addEventListener("change", () => {
-  browser.storage.local.set({ showText: showTextToggle.checked });
+showTitleToggle.addEventListener("change", () => {
+  browser.storage.local.set({ showTitle: showTitleToggle.checked });
 });
 showBorderToggle.addEventListener("change", () => {
   browser.storage.local.set({ showBorder: showBorderToggle.checked });

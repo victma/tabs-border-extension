@@ -5,26 +5,26 @@
 const OVERLAY_ID = "tabtint-overlay";
 const FRAME_ID = "tabtint-border-frame";
 
-// The current configured text. Empty/undefined means "use tab title".
-let configuredText = "";
+// The current configured title. Empty/undefined means "use tab title".
+let configuredTitle = "";
 
 const DEFAULT_BORDER_COLOR = "#a21c1c";
 let borderColor = DEFAULT_BORDER_COLOR;
 
 // Set by the background script so we can look up per-tab settings
 let tabId = null;
-let showText = true;
+let showTitle = true;
 let showBorder = true;
 
-function getDisplayText() {
-  return configuredText || document.title;
+function getDisplayTitle() {
+  return configuredTitle || document.title;
 }
 
 function ensureOverlay() {
   if (document.getElementById(OVERLAY_ID)) return;
   const el = document.createElement("div");
   el.id = OVERLAY_ID;
-  el.textContent = getDisplayText();
+  el.textContent = getDisplayTitle();
   el.style.borderColor = borderColor;
   document.body.appendChild(el);
 }
@@ -39,11 +39,11 @@ function ensureFrame() {
 
 function updateOverlay() {
   const el = document.getElementById(OVERLAY_ID);
-  if (el) el.textContent = getDisplayText();
+  if (el) el.textContent = getDisplayTitle();
 }
 
 function syncVisibility(enabled) {
-  if (enabled && showText) ensureOverlay();
+  if (enabled && showTitle) ensureOverlay();
   else document.getElementById(OVERLAY_ID)?.remove();
 
   if (enabled && showBorder) ensureFrame();
@@ -54,7 +54,7 @@ function syncVisibility(enabled) {
 const titleEl = document.querySelector("title");
 if (titleEl) {
   new MutationObserver(() => {
-    if (!configuredText) updateOverlay();
+    if (!configuredTitle) updateOverlay();
   }).observe(titleEl, {
     childList: true,
     characterData: true,
@@ -64,10 +64,10 @@ if (titleEl) {
 
 // Fetch settings and initialise
 browser.runtime.sendMessage({ type: "GET_SETTINGS" }).then((settings) => {
-  configuredText = settings?.overlayText ?? "";
+  configuredTitle = settings?.overlayTitle ?? "";
   borderColor = settings?.borderColor || DEFAULT_BORDER_COLOR;
   tabId = settings?.tabId ?? null;
-  showText = settings?.showText !== false;
+  showTitle = settings?.showTitle !== false;
   showBorder = settings?.showBorder !== false;
   syncVisibility(settings?.enabled !== false);
 });
@@ -85,8 +85,8 @@ browser.storage.onChanged.addListener((changes) => {
   if (changes.tabSettings && tabId != null) {
     const newEntry = (changes.tabSettings.newValue || {})[tabId] || {};
     const oldEntry = (changes.tabSettings.oldValue || {})[tabId] || {};
-    if (newEntry.text !== oldEntry.text) {
-      configuredText = newEntry.text || "";
+    if (newEntry.title !== oldEntry.title) {
+      configuredTitle = newEntry.title || "";
       updateOverlay();
     }
     if (newEntry.color !== oldEntry.color) {
@@ -94,11 +94,11 @@ browser.storage.onChanged.addListener((changes) => {
     }
   } else {
     // Global defaults changed — apply only if this tab has no per-tab override
-    if (changes.overlayText || changes.borderColor) {
+    if (changes.overlayTitle || changes.borderColor) {
       browser.storage.local.get("tabSettings").then(({ tabSettings = {} }) => {
         const perTab = tabSettings[tabId] || {};
-        if (changes.overlayText && !perTab.text) {
-          configuredText = changes.overlayText.newValue ?? "";
+        if (changes.overlayTitle && !perTab.title) {
+          configuredTitle = changes.overlayTitle.newValue ?? "";
           updateOverlay();
         }
         if (changes.borderColor && !perTab.color) {
@@ -109,7 +109,7 @@ browser.storage.onChanged.addListener((changes) => {
   }
 
   let needSync = false;
-  if (changes.showText) { showText = changes.showText.newValue !== false; needSync = true; }
+  if (changes.showTitle) { showTitle = changes.showTitle.newValue !== false; needSync = true; }
   if (changes.showBorder) { showBorder = changes.showBorder.newValue !== false; needSync = true; }
   if (changes.enabled || needSync) {
     browser.storage.local.get("enabled").then(({ enabled }) => {

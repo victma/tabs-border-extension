@@ -5,11 +5,11 @@
 browser.runtime.onInstalled.addListener(() => {
   // Set default storage values on first install
   browser.storage.local.set({
-    overlayText: "",
+    overlayTitle: "",
     borderColor: "",
     tabSettings: {},
     enabled: true,
-    showText: true,
+    showTitle: true,
     showBorder: true,
   });
   console.log("[TabTint] Extension installed. Default settings written.");
@@ -21,15 +21,15 @@ browser.runtime.onMessage.addListener((message, sender) => {
 
   if (message.type === "GET_SETTINGS") {
     return browser.storage.local
-      .get(["overlayText", "borderColor", "tabSettings", "enabled", "showText", "showBorder"])
+      .get(["overlayTitle", "borderColor", "tabSettings", "enabled", "showTitle", "showBorder"])
       .then((settings) => {
         const tabId = sender.tab?.id;
         const perTab = tabId != null ? settings.tabSettings?.[tabId] : undefined;
         return {
-          overlayText: perTab?.text || settings.overlayText,
+          overlayTitle: perTab?.title || settings.overlayTitle,
           borderColor: perTab?.color || settings.borderColor,
           enabled: settings.enabled,
-          showText: settings.showText,
+          showTitle: settings.showTitle,
           showBorder: settings.showBorder,
           tabId,
         };
@@ -37,12 +37,12 @@ browser.runtime.onMessage.addListener((message, sender) => {
   }
 
   if (message.type === "SET_TAB_SETTINGS") {
-    const { tabId, color, text } = message;
+    const { tabId, color, title } = message;
     return browser.storage.local.get("tabSettings").then(({ tabSettings = {} }) => {
       const entry = { ...tabSettings[tabId] };
       if (color !== undefined) entry.color = color;
-      if (text !== undefined) entry.text = text;
-      if (entry.color || entry.text) {
+      if (title !== undefined) entry.title = title;
+      if (entry.color || entry.title) {
         tabSettings[tabId] = entry;
       } else {
         delete tabSettings[tabId];

@@ -1,6 +1,6 @@
 # TabTint — Firefox Extension
 
-Displays a configurable text overlay and colored border on every tab.
+Displays a configurable title overlay and colored border on every tab.
 Built with [`webextension-polyfill`](https://github.com/mozilla/webextension-polyfill) for Firefox/Chrome compatibility.
 
 ## Project structure
