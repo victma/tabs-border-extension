@@ -2,18 +2,27 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  width: 308px;
+  width: 320px;
   padding: 16px;
+  padding-top: 0;
   font-family: ui-sans-serif, system-ui, sans-serif;
   font-size: 13px;
   color: #1a1a1a;
   background: #fff;
 }
 
+/* Color accent bar — ambient feedback for the selected color */
+#header-accent {
+  height: 4px;
+  margin: 0 -16px 16px;
+  background: #a21c1c;
+  transition: background 0.15s;
+}
+
 h1 {
   font-size: 15px;
   font-weight: 600;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   letter-spacing: -0.01em;
 }
 
@@ -29,7 +38,7 @@ label {
 
 input[type="text"] {
   width: 100%;
-  padding: 7px 9px;
+  padding: 8px;
   border: 1px solid #d0d0d0;
   border-radius: 6px;
   font-size: 13px;
@@ -39,6 +48,7 @@ input[type="text"] {
 }
 input[type="text"]:focus { border-color: #4a90e2; }
 
+/* --- Toggles --- */
 .toggle-row {
   display: flex;
   align-items: center;
@@ -49,17 +59,25 @@ input[type="text"]:focus { border-color: #4a90e2; }
   font-size: 13px;
   font-weight: 400;
   color: #1a1a1a;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   cursor: pointer;
 }
 .toggle-row input[type="checkbox"] { width: 15px; height: 15px; cursor: pointer; }
-.sub-toggle { margin-left: 23px; margin-bottom: 10px; }
+.toggle-group { margin-bottom: 8px; }
+.sub-toggle { margin-left: 24px; margin-bottom: 8px; }
 
+/* Dim everything below the main toggle when disabled */
+#settings-body.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* --- Fieldset --- */
 fieldset {
   border: 1px solid #d0d0d0;
   border-radius: 6px;
-  padding: 10px 12px;
-  margin-bottom: 14px;
+  padding: 12px;
+  margin-bottom: 16px;
 }
 fieldset legend {
   font-size: 11px;
@@ -70,9 +88,10 @@ fieldset legend {
   padding: 0 4px;
 }
 
+/* --- Color swatches --- */
 .color-swatches {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 8px;
 }
 .swatch {
@@ -106,14 +125,10 @@ fieldset legend {
   border-radius: 4px;
 }
 
-.domain-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.domain-actions button {
+/* --- Shared button styles --- */
+.action-btn {
   width: 100%;
-  padding: 7px 10px;
+  padding: 8px 12px;
   border: 1px solid #d0d0d0;
   border-radius: 6px;
   background: #f5f5f5;
@@ -122,22 +137,76 @@ fieldset legend {
   cursor: pointer;
   text-align: center;
 }
-.domain-actions button:hover { background: #e8e8e8; }
+.action-btn:hover { background: #e8e8e8; }
+.action-btn:disabled { opacity: 0.4; cursor: default; }
+.action-btn:disabled:hover { background: #f5f5f5; }
+
+.domain-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+}
 #domain-name { font-weight: 600; }
 .link-btn {
   background: transparent !important;
   border: none !important;
   color: #888 !important;
   font-size: 11px !important;
+  cursor: pointer;
   text-decoration: underline;
+  padding: 2px 0 !important;
+  width: auto !important;
+  text-align: left !important;
 }
 .link-btn:hover { color: #555 !important; }
+
+/* --- Whitelist (details/summary) --- */
+details#whitelist-settings {
+  margin-bottom: 0;
+}
+details#whitelist-settings summary {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #555;
+  cursor: pointer;
+  padding: 4px 0;
+  list-style: none;
+}
+details#whitelist-settings summary::before {
+  content: "\25b8";
+  display: inline-block;
+  margin-right: 8px;
+  transition: transform 0.15s;
+}
+details#whitelist-settings[open] summary::before {
+  transform: rotate(90deg);
+}
+details#whitelist-settings summary::-webkit-details-marker { display: none; }
+
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  background: #e8e8e8;
+  color: #555;
+  padding: 1px 6px;
+  border-radius: 8px;
+  vertical-align: 1px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.details-body {
+  padding: 8px 0 4px;
+}
 
 .hint {
   font-size: 11px;
   color: #888;
-  font-style: italic;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .domain-list {
@@ -166,43 +235,18 @@ fieldset legend {
 
 .add-domain-row {
   display: flex;
-  gap: 6px;
-  margin-bottom: 6px;
+  gap: 8px;
+  margin-top: 8px;
 }
 .add-domain-row input[type="text"] {
   flex: 1;
   margin-bottom: 0;
   font-size: 12px;
-  padding: 5px 8px;
+  padding: 8px;
 }
-.add-btn {
-  padding: 5px 12px;
-  border: 1px solid #d0d0d0;
-  border-radius: 6px;
-  background: #f5f5f5;
-  color: #1a1a1a;
-  font-size: 12px;
-  cursor: pointer;
+.add-domain-row .action-btn {
+  width: auto;
   flex-shrink: 0;
 }
-.add-btn:hover { background: #e8e8e8; }
 
-.add-current-btn {
-  width: 100%;
-  padding: 6px 10px;
-  border: 1px solid #d0d0d0;
-  border-radius: 6px;
-  background: #f5f5f5;
-  color: #1a1a1a;
-  font-size: 12px;
-  cursor: pointer;
-  text-align: center;
-}
-.add-current-btn:hover { background: #e8e8e8; }
-.add-current-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-.add-current-btn:disabled:hover { background: #f5f5f5; }
-.add-current-btn span { font-weight: 600; }
-
+#whitelist-current-domain { font-weight: 600; }

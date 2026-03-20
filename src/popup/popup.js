@@ -4,7 +4,9 @@
 
 const DEFAULT_COLOR = "#a21c1c";
 
+const headerAccent = document.getElementById("header-accent");
 const enabledToggle = document.getElementById("enabled-toggle");
+const settingsBody = document.getElementById("settings-body");
 const showTitleToggle = document.getElementById("show-title-toggle");
 const showBorderToggle = document.getElementById("show-border-toggle");
 const tabTitle = document.getElementById("tab-title");
@@ -15,6 +17,7 @@ const domainNameEl = document.getElementById("domain-name");
 const setDomainDefaultsBtn = document.getElementById("set-domain-defaults");
 const clearDomainColorBtn = document.getElementById("clear-domain-color");
 
+const whitelistCount = document.getElementById("whitelist-count");
 const whitelistHint = document.getElementById("whitelist-hint");
 const whitelistList = document.getElementById("whitelist-list");
 const whitelistInput = document.getElementById("whitelist-input");
@@ -29,9 +32,14 @@ let currentWhitelist = [];
 function setColor(hex) {
   tabColor.value = hex;
   colorPreview.style.background = hex;
+  headerAccent.style.background = hex;
   swatches.forEach((s) =>
     s.classList.toggle("selected", s.dataset.color === hex)
   );
+}
+
+function syncEnabledState() {
+  settingsBody.classList.toggle("disabled", !enabledToggle.checked);
 }
 
 // Load current settings when popup opens
@@ -41,6 +49,7 @@ async function loadSettings() {
   enabledToggle.checked = enabled ?? true;
   showTitleToggle.checked = showTitle ?? true;
   showBorderToggle.checked = showBorder ?? true;
+  syncEnabledState();
 
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   activeTabId = tab?.id ?? null;
@@ -89,6 +98,7 @@ tabTitle.addEventListener("input", saveTabSettings);
 
 enabledToggle.addEventListener("change", () => {
   browser.storage.local.set({ enabled: enabledToggle.checked });
+  syncEnabledState();
 });
 showTitleToggle.addEventListener("change", () => {
   browser.storage.local.set({ showTitle: showTitleToggle.checked });
@@ -126,7 +136,11 @@ function saveWhitelist() {
 }
 
 function renderWhitelist() {
-  whitelistHint.hidden = currentWhitelist.length > 0;
+  const count = currentWhitelist.length;
+  whitelistHint.hidden = count > 0;
+  whitelistCount.hidden = count === 0;
+  whitelistCount.textContent = count;
+
   whitelistList.innerHTML = "";
   for (const domain of currentWhitelist) {
     const li = document.createElement("li");

@@ -7,58 +7,65 @@
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
+  <div id="header-accent"></div>
   <h1>TabTint</h1>
 
   <label class="toggle-row">
     <input id="enabled-toggle" type="checkbox" />
     <span>Enabled</span>
   </label>
-  <label class="toggle-row sub-toggle">
-    <input id="show-title-toggle" type="checkbox" />
-    <span>Show title</span>
-  </label>
-  <label class="toggle-row sub-toggle">
-    <input id="show-border-toggle" type="checkbox" />
-    <span>Show border</span>
-  </label>
 
-  <fieldset id="tab-settings">
-    <legend>Tab settings</legend>
-    <label for="tab-title">Title</label>
-    <input id="tab-title" type="text" placeholder="Tab title" />
-    <label>Color</label>
-    <div class="color-swatches" id="color-swatches">
-      <button type="button" class="swatch" data-color="#a21c1c" style="background:#a21c1c" title="#a21c1c"></button>
-      <button type="button" class="swatch" data-color="#e06c2e" style="background:#e06c2e" title="#e06c2e"></button>
-      <button type="button" class="swatch" data-color="#d4a017" style="background:#d4a017" title="#d4a017"></button>
-      <button type="button" class="swatch" data-color="#2e8b57" style="background:#2e8b57" title="#2e8b57"></button>
-      <button type="button" class="swatch" data-color="#17a2a2" style="background:#17a2a2" title="#17a2a2"></button>
-      <button type="button" class="swatch" data-color="#2e6ee0" style="background:#2e6ee0" title="#2e6ee0"></button>
-      <button type="button" class="swatch" data-color="#7b3ea1" style="background:#7b3ea1" title="#7b3ea1"></button>
-      <button type="button" class="swatch" data-color="#e04080" style="background:#e04080" title="#e04080"></button>
-      <button type="button" class="swatch" data-color="#1a1a1a" style="background:#1a1a1a" title="#1a1a1a"></button>
+  <div id="settings-body">
+    <div class="toggle-group">
+      <label class="toggle-row sub-toggle">
+        <input id="show-title-toggle" type="checkbox" />
+        <span>Show title</span>
+      </label>
+      <label class="toggle-row sub-toggle">
+        <input id="show-border-toggle" type="checkbox" />
+        <span>Show border</span>
+      </label>
     </div>
-    <div class="color-row">
-      <span id="color-preview" class="color-preview"></span>
-      <input id="tab-color" type="text" placeholder="#a21c1c" maxlength="7" />
-    </div>
-  </fieldset>
 
-  <div class="domain-actions">
-    <button type="button" id="set-domain-defaults">Save as default for <span id="domain-name"></span></button>
-    <button type="button" id="clear-domain-color" class="link-btn" hidden>Clear domain default</button>
+    <fieldset id="tab-settings">
+      <legend>Tab settings</legend>
+      <label for="tab-title">Title</label>
+      <input id="tab-title" type="text" placeholder="Tab title" />
+      <label>Color</label>
+      <div class="color-swatches" id="color-swatches">
+        <button type="button" class="swatch" data-color="#a21c1c" style="background:#a21c1c" title="#a21c1c"></button>
+        <button type="button" class="swatch" data-color="#e06c2e" style="background:#e06c2e" title="#e06c2e"></button>
+        <button type="button" class="swatch" data-color="#d4a017" style="background:#d4a017" title="#d4a017"></button>
+        <button type="button" class="swatch" data-color="#2e8b57" style="background:#2e8b57" title="#2e8b57"></button>
+        <button type="button" class="swatch" data-color="#17a2a2" style="background:#17a2a2" title="#17a2a2"></button>
+        <button type="button" class="swatch" data-color="#2e6ee0" style="background:#2e6ee0" title="#2e6ee0"></button>
+        <button type="button" class="swatch" data-color="#7b3ea1" style="background:#7b3ea1" title="#7b3ea1"></button>
+        <button type="button" class="swatch" data-color="#e04080" style="background:#e04080" title="#e04080"></button>
+        <button type="button" class="swatch" data-color="#1a1a1a" style="background:#1a1a1a" title="#1a1a1a"></button>
+      </div>
+      <div class="color-row">
+        <span id="color-preview" class="color-preview"></span>
+        <input id="tab-color" type="text" placeholder="#a21c1c" maxlength="7" />
+      </div>
+      <div class="domain-actions">
+        <button type="button" id="set-domain-defaults" class="action-btn">Save as default for <span id="domain-name"></span></button>
+        <button type="button" id="clear-domain-color" class="link-btn" hidden>Clear domain default</button>
+      </div>
+    </fieldset>
+
+    <details id="whitelist-settings">
+      <summary>Allowed domains <span id="whitelist-count" class="badge" hidden></span></summary>
+      <div class="details-body">
+        <p id="whitelist-hint" class="hint">Active on all domains</p>
+        <ul id="whitelist-list" class="domain-list"></ul>
+        <button type="button" id="whitelist-add-current" class="action-btn">Add <span id="whitelist-current-domain"></span></button>
+        <div class="add-domain-row">
+          <input id="whitelist-input" type="text" placeholder="other domain..." />
+          <button type="button" id="whitelist-add" class="action-btn">Add</button>
+        </div>
+      </div>
+    </details>
   </div>
-
-  <fieldset id="whitelist-settings">
-    <legend>Allowed domains</legend>
-    <p id="whitelist-hint" class="hint">Active on all domains</p>
-    <ul id="whitelist-list" class="domain-list"></ul>
-    <div class="add-domain-row">
-      <input id="whitelist-input" type="text" placeholder="example.com" />
-      <button type="button" id="whitelist-add" class="add-btn">Add</button>
-    </div>
-    <button type="button" id="whitelist-add-current" class="add-current-btn">Add <span id="whitelist-current-domain"></span></button>
-  </fieldset>
 
   <script src="../../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>
   <script src="popup.js"></script>
