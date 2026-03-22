@@ -26,7 +26,7 @@ function ensureOverlay() {
   const el = document.createElement("div");
   el.id = OVERLAY_ID;
   el.textContent = getDisplayTitle();
-  el.style.borderColor = borderColor;
+  el.style.backgroundColor = borderColor;
   document.body.appendChild(el);
 }
 
@@ -84,7 +84,7 @@ browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) 
 function applyBorderColor(color) {
   borderColor = color || DEFAULT_BORDER_COLOR;
   const el = document.getElementById(OVERLAY_ID);
-  if (el) el.style.borderColor = borderColor;
+  if (el) el.style.backgroundColor = borderColor;
   const frame = document.getElementById(FRAME_ID);
   if (frame) frame.style.borderColor = borderColor;
 }
