@@ -20,6 +20,7 @@
   "background": {
     "scripts": [
       "node_modules/webextension-polyfill/dist/browser-polyfill.min.js",
+      "src/shared/utils.js",
       "src/background/background.js"
     ]
   },
@@ -29,6 +30,7 @@
       "matches": ["<all_urls>"],
       "js": [
         "node_modules/webextension-polyfill/dist/browser-polyfill.min.js",
+        "src/shared/utils.js",
         "src/content/content.js"
       ],
       "css": ["src/content/content.css"],
