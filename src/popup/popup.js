@@ -9,6 +9,7 @@ const enabledToggle = document.getElementById("enabled-toggle");
 const settingsBody = document.getElementById("settings-body");
 const showTitleToggle = document.getElementById("show-title-toggle");
 const showBorderToggle = document.getElementById("show-border-toggle");
+const showFaviconBadgeToggle = document.getElementById("show-favicon-badge-toggle");
 const tabTitle = document.getElementById("tab-title");
 const tabColor = document.getElementById("tab-color");
 const colorPreview = document.getElementById("color-preview");
@@ -44,11 +45,12 @@ function syncEnabledState() {
 
 // Load current settings when popup opens
 async function loadSettings() {
-  const { enabled, showTitle, showBorder, domainDefaults = {}, tabSettings = {}, whitelist = [] } =
-    await browser.storage.local.get(["enabled", "showTitle", "showBorder", "domainDefaults", "tabSettings", "whitelist"]);
+  const { enabled, showTitle, showBorder, showFaviconBadge, domainDefaults = {}, tabSettings = {}, whitelist = [] } =
+    await browser.storage.local.get(["enabled", "showTitle", "showBorder", "showFaviconBadge", "domainDefaults", "tabSettings", "whitelist"]);
   enabledToggle.checked = enabled ?? true;
   showTitleToggle.checked = showTitle ?? true;
   showBorderToggle.checked = showBorder ?? true;
+  showFaviconBadgeToggle.checked = showFaviconBadge ?? true;
   syncEnabledState();
 
   const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
@@ -105,6 +107,9 @@ showTitleToggle.addEventListener("change", () => {
 });
 showBorderToggle.addEventListener("change", () => {
   browser.storage.local.set({ showBorder: showBorderToggle.checked });
+});
+showFaviconBadgeToggle.addEventListener("change", () => {
+  browser.storage.local.set({ showFaviconBadge: showFaviconBadgeToggle.checked });
 });
 
 setDomainDefaultsBtn.addEventListener("click", () => {
