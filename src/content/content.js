@@ -28,7 +28,7 @@ let originalFaviconHref = null;
 let disabledFaviconLinks = [];
 
 function getDisplayTitle() {
-  return configuredTitle || document.title;
+  return configuredTitle || document.title || hostname;
 }
 
 function ensureOverlay() {
