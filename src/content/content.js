@@ -56,8 +56,14 @@ function updateOverlay() {
 
 let whitelist = [];
 
+function matchesPattern(pattern, host) {
+  if (!pattern.includes("*")) return pattern === host;
+  const regex = new RegExp("^" + pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]*") + "$");
+  return regex.test(host);
+}
+
 function isWhitelisted() {
-  return whitelist.includes(hostname);
+  return whitelist.some((pattern) => matchesPattern(pattern, hostname));
 }
 
 // --- Favicon badge ---

@@ -32,6 +32,16 @@ let activeTabId = null;
 let activeHostname = "";
 let currentWhitelist = [];
 
+function matchesPattern(pattern, host) {
+  if (!pattern.includes("*")) return pattern === host;
+  const regex = new RegExp("^" + pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]*") + "$");
+  return regex.test(host);
+}
+
+function isHostWhitelisted(host) {
+  return currentWhitelist.some((pattern) => matchesPattern(pattern, host));
+}
+
 function setColor(hex) {
   tabColor.value = hex;
   colorPreview.style.background = hex;
@@ -46,7 +56,7 @@ function syncEnabledState() {
 }
 
 function syncActiveState() {
-  const active = currentWhitelist.includes(activeHostname);
+  const active = isHostWhitelisted(activeHostname);
   activateDomainBtn.hidden = active || !activeHostname;
   domainSettings.hidden = !active;
 }
@@ -170,7 +180,7 @@ function renderWhitelist() {
     li.appendChild(btn);
     whitelistList.appendChild(li);
   }
-  const alreadyListed = currentWhitelist.includes(activeHostname);
+  const alreadyListed = isHostWhitelisted(activeHostname);
   whitelistAddCurrentBtn.disabled = alreadyListed || !activeHostname;
   syncActiveState();
 }
