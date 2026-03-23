@@ -4,7 +4,7 @@
   position: fixed;
   inset: 0;
   z-index: 2147483646;
-  border: 6px solid #a21c1c;
+  border: 4px solid #a21c1c;
   pointer-events: none;
   box-sizing: border-box;
 }

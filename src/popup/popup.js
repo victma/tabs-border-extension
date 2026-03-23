@@ -179,8 +179,7 @@ function renderWhitelist() {
     li.appendChild(btn);
     whitelistList.appendChild(li);
   }
-  const alreadyListed = isHostWhitelisted(activeHostname);
-  whitelistAddCurrentBtn.disabled = alreadyListed || !activeHostname;
+  whitelistAddCurrentBtn.disabled = currentWhitelist.includes(activeHostname) || !activeHostname;
   syncActiveState();
 }
 
