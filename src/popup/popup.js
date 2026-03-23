@@ -153,7 +153,7 @@ function saveWhitelist() {
   browser.storage.local.set({ whitelist: currentWhitelist });
 }
 
-function renderWhitelist() {
+async function renderWhitelist() {
   defaultsKey = currentWhitelist.includes(activeHostname)
     ? activeHostname
     : findMatchingPattern(currentWhitelist, activeHostname) || activeHostname;
@@ -164,15 +164,31 @@ function renderWhitelist() {
   whitelistCount.hidden = count === 0;
   whitelistCount.textContent = count;
 
+  const { domainDefaults = {} } = await browser.storage.local.get("domainDefaults");
+
   whitelistList.innerHTML = "";
-  for (const domain of currentWhitelist) {
+  for (const entry of currentWhitelist) {
     const li = document.createElement("li");
-    li.textContent = domain;
+    const defaults = domainDefaults[entry];
+
+    const preview = document.createElement("span");
+    preview.className = "domain-preview";
+    if (defaults?.color) {
+      preview.style.background = defaults.color;
+      if (defaults.title) preview.title = defaults.title;
+    }
+    li.appendChild(preview);
+
+    const name = document.createElement("span");
+    name.className = "domain-name-text";
+    name.textContent = entry;
+    li.appendChild(name);
+
     const btn = document.createElement("button");
     btn.className = "remove-domain";
     btn.textContent = "\u00d7";
     btn.addEventListener("click", () => {
-      currentWhitelist = currentWhitelist.filter((d) => d !== domain);
+      currentWhitelist = currentWhitelist.filter((d) => d !== entry);
       saveWhitelist();
       renderWhitelist();
     });
