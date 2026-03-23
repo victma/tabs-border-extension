@@ -11,7 +11,6 @@ browser.runtime.onInstalled.addListener(() => {
     enabled: true,
     showTitle: true,
     showBorder: true,
-    showFaviconBadge: true,
     whitelist: [],
   });
   console.log("[TabTint] Extension installed. Default settings written.");
@@ -24,7 +23,7 @@ browser.runtime.onMessage.addListener((message, sender) => {
   if (message.type === "GET_SETTINGS") {
     const hostname = message.hostname || "";
     return browser.storage.local
-      .get(["overlayTitle", "domainDefaults", "tabSettings", "enabled", "showTitle", "showBorder", "showFaviconBadge", "whitelist"])
+      .get(["overlayTitle", "domainDefaults", "tabSettings", "enabled", "showTitle", "showBorder", "whitelist"])
       .then((settings) => {
         const tabId = sender.tab?.id;
         const perTab = tabId != null ? settings.tabSettings?.[tabId] : undefined;
@@ -35,7 +34,6 @@ browser.runtime.onMessage.addListener((message, sender) => {
           enabled: settings.enabled,
           showTitle: settings.showTitle,
           showBorder: settings.showBorder,
-          showFaviconBadge: settings.showFaviconBadge,
           whitelist: settings.whitelist,
           tabId,
         };

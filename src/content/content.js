@@ -17,7 +17,6 @@ let tabId = null;
 const hostname = location.hostname;
 let showTitle = true;
 let showBorder = true;
-let showFaviconBadge = true;
 
 // Tracks whether the extension is actively rendering for this page
 let isActive = false;
@@ -109,7 +108,7 @@ function removeFaviconBadge() {
 }
 
 function applyFaviconBadge(color) {
-  if (!showFaviconBadge || !color) {
+  if (!color) {
     removeFaviconBadge();
     return;
   }
@@ -169,7 +168,7 @@ function syncVisibility(enabled) {
   if (isActive && showBorder) ensureFrame();
   else document.getElementById(FRAME_ID)?.remove();
 
-  if (isActive && showFaviconBadge) applyFaviconBadge(borderColor);
+  if (isActive && (showTitle || showBorder)) applyFaviconBadge(borderColor);
   else removeFaviconBadge();
 }
 
@@ -187,7 +186,7 @@ if (titleEl) {
 
 // Watch for favicon changes (SPAs may swap favicons dynamically)
 new MutationObserver((mutations) => {
-  if (!isActive || !showFaviconBadge) return;
+  if (!isActive || !(showTitle || showBorder)) return;
   for (const m of mutations) {
     for (const node of m.addedNodes) {
       if (node.nodeName === "LINK" && node.id !== FAVICON_LINK_ID && /icon/i.test(node.rel || "")) {
@@ -207,7 +206,6 @@ browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) 
   tabId = settings?.tabId ?? null;
   showTitle = settings?.showTitle !== false;
   showBorder = settings?.showBorder !== false;
-  showFaviconBadge = settings?.showFaviconBadge !== false;
   whitelist = settings?.whitelist || [];
   syncVisibility(settings?.enabled !== false);
 });
@@ -218,7 +216,7 @@ function applyBorderColor(color) {
   if (el) el.style.backgroundColor = borderColor;
   const frame = document.getElementById(FRAME_ID);
   if (frame) frame.style.borderColor = borderColor;
-  if (isActive && showFaviconBadge) applyFaviconBadge(borderColor);
+  if (isActive && (showTitle || showBorder)) applyFaviconBadge(borderColor);
 }
 
 // React to storage changes in real time
@@ -278,7 +276,6 @@ browser.storage.onChanged.addListener((changes) => {
   let needSync = false;
   if (changes.showTitle) { showTitle = changes.showTitle.newValue !== false; needSync = true; }
   if (changes.showBorder) { showBorder = changes.showBorder.newValue !== false; needSync = true; }
-  if (changes.showFaviconBadge) { showFaviconBadge = changes.showFaviconBadge.newValue !== false; needSync = true; }
   if (changes.whitelist) { whitelist = changes.whitelist.newValue || []; needSync = true; }
   if (changes.enabled || needSync) {
     browser.storage.local.get("enabled").then(({ enabled }) => {
