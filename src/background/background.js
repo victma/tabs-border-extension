@@ -2,8 +2,8 @@
 // Runs in the background context — has access to full browser.* API but no DOM.
 // Use this for: alarms, cross-tab state, network interception, etc.
 
-browser.runtime.onInstalled.addListener(() => {
-  // Set default storage values on first install
+browser.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason !== "install") return;
   browser.storage.local.set({
     overlayTitle: "",
     domainDefaults: {},
@@ -27,7 +27,9 @@ browser.runtime.onMessage.addListener((message, sender) => {
       .then((settings) => {
         const tabId = sender.tab?.id;
         const perTab = tabId != null ? settings.tabSettings?.[tabId] : undefined;
-        const domain = hostname ? settings.domainDefaults?.[hostname] : undefined;
+        const domain = hostname
+          ? resolveDomainDefaults(settings.domainDefaults || {}, hostname, settings.whitelist || [])
+          : undefined;
         return {
           overlayTitle: perTab?.title || domain?.title || settings.overlayTitle,
           borderColor: perTab?.color || domain?.color || "",

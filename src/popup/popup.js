@@ -31,15 +31,10 @@ const whitelistCurrentDomain = document.getElementById("whitelist-current-domain
 let activeTabId = null;
 let activeHostname = "";
 let currentWhitelist = [];
-
-function matchesPattern(pattern, host) {
-  if (!pattern.includes("*")) return pattern === host;
-  const regex = new RegExp("^" + pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]*") + "$");
-  return regex.test(host);
-}
+let defaultsKey = "";
 
 function isHostWhitelisted(host) {
-  return currentWhitelist.some((pattern) => matchesPattern(pattern, host));
+  return currentWhitelist.some((p) => matchesPattern(p, host));
 }
 
 function setColor(hex) {
@@ -74,15 +69,14 @@ async function loadSettings() {
   activeTabId = tab?.id ?? null;
   activeHostname = tab?.url ? new URL(tab.url).hostname : "";
 
+  currentWhitelist = whitelist;
+
   const perTab = activeTabId != null ? tabSettings[activeTabId] : undefined;
-  const domain = domainDefaults[activeHostname];
+  const domain = resolveDomainDefaults(domainDefaults, activeHostname, whitelist);
   tabTitle.value = perTab?.title || domain?.title || "";
   setColor(perTab?.color || domain?.color || DEFAULT_COLOR);
 
-  domainNameEl.textContent = activeHostname || "(unknown)";
   clearDomainColorBtn.hidden = !domain;
-
-  currentWhitelist = whitelist;
   whitelistCurrentDomain.textContent = activeHostname || "(unknown)";
   activateDomainName.textContent = activeHostname || "(unknown)";
   renderWhitelist();
@@ -132,10 +126,10 @@ activateDomainBtn.addEventListener("click", () => {
 });
 
 setDomainDefaultsBtn.addEventListener("click", () => {
-  if (!activeHostname) return;
+  if (!defaultsKey) return;
   browser.runtime.sendMessage({
     type: "SET_DOMAIN_DEFAULTS",
-    hostname: activeHostname,
+    hostname: defaultsKey,
     color: tabColor.value,
     title: tabTitle.value,
   });
@@ -143,10 +137,10 @@ setDomainDefaultsBtn.addEventListener("click", () => {
 });
 
 clearDomainColorBtn.addEventListener("click", () => {
-  if (!activeHostname) return;
+  if (!defaultsKey) return;
   browser.runtime.sendMessage({
     type: "SET_DOMAIN_DEFAULTS",
-    hostname: activeHostname,
+    hostname: defaultsKey,
     color: "",
     title: "",
   });
@@ -160,6 +154,11 @@ function saveWhitelist() {
 }
 
 function renderWhitelist() {
+  defaultsKey = currentWhitelist.includes(activeHostname)
+    ? activeHostname
+    : findMatchingPattern(currentWhitelist, activeHostname) || activeHostname;
+  domainNameEl.textContent = defaultsKey || "(unknown)";
+
   const count = currentWhitelist.length;
   whitelistHint.hidden = count > 0;
   whitelistCount.hidden = count === 0;

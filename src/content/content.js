@@ -56,12 +56,6 @@ function updateOverlay() {
 
 let whitelist = [];
 
-function matchesPattern(pattern, host) {
-  if (!pattern.includes("*")) return pattern === host;
-  const regex = new RegExp("^" + pattern.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]*") + "$");
-  return regex.test(host);
-}
-
 function isWhitelisted() {
   return whitelist.some((pattern) => matchesPattern(pattern, hostname));
 }
@@ -264,7 +258,7 @@ browser.storage.onChanged.addListener((changes) => {
     if (newEntry.title !== oldEntry.title && !newEntry.title) {
       // Per-tab title cleared — fall back to domain then global
       browser.storage.local.get("domainDefaults").then(({ domainDefaults = {} }) => {
-        configuredTitle = domainDefaults[hostname]?.title || "";
+        configuredTitle = resolveDomainDefaults(domainDefaults, hostname, whitelist)?.title || "";
         updateOverlay();
       });
     }
@@ -274,7 +268,7 @@ browser.storage.onChanged.addListener((changes) => {
         applyBorderColor(newEntry.color);
       } else {
         browser.storage.local.get("domainDefaults").then(({ domainDefaults = {} }) => {
-          applyBorderColor(domainDefaults[hostname]?.color || "");
+          applyBorderColor(resolveDomainDefaults(domainDefaults, hostname, whitelist)?.color || "");
         });
       }
     }
@@ -282,8 +276,8 @@ browser.storage.onChanged.addListener((changes) => {
 
   // Domain defaults changed — apply if this tab has no per-tab override
   if (changes.domainDefaults && hostname) {
-    const newDomain = (changes.domainDefaults.newValue || {})[hostname] || {};
-    const oldDomain = (changes.domainDefaults.oldValue || {})[hostname] || {};
+    const newDomain = resolveDomainDefaults(changes.domainDefaults.newValue || {}, hostname, whitelist) || {};
+    const oldDomain = resolveDomainDefaults(changes.domainDefaults.oldValue || {}, hostname, whitelist) || {};
     browser.storage.local.get("tabSettings").then(({ tabSettings = {} }) => {
       const perTab = tabSettings[tabId] || {};
       if (newDomain.color !== oldDomain.color && !perTab.color) {
@@ -299,7 +293,8 @@ browser.storage.onChanged.addListener((changes) => {
   // Global defaults changed — apply only if no per-tab or per-domain override
   if (changes.overlayTitle) {
     browser.storage.local.get(["tabSettings", "domainDefaults"]).then(({ tabSettings = {}, domainDefaults = {} }) => {
-      if (!tabSettings[tabId]?.title && !domainDefaults[hostname]?.title) {
+      const domain = resolveDomainDefaults(domainDefaults, hostname, whitelist);
+      if (!tabSettings[tabId]?.title && !domain?.title) {
         configuredTitle = changes.overlayTitle.newValue ?? "";
         updateOverlay();
       }
