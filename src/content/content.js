@@ -5,6 +5,7 @@
 const OVERLAY_ID = "tabtint-overlay";
 const FRAME_ID = "tabtint-border-frame";
 const FAVICON_LINK_ID = "tabtint-favicon";
+const FAVICON_LINK_SELECTOR = 'link[rel~="icon"], link[rel="shortcut icon"]';
 
 // The current configured title. Empty/undefined means "use tab title".
 let configuredTitle = "";
@@ -25,7 +26,7 @@ let initialized = false;
 
 // Favicon badge state
 let originalFaviconHref = null;
-let disabledFaviconLinks = [];
+let lastAppliedBadge = null;
 
 function getDisplayTitle() {
   return configuredTitle || document.title || hostname;
@@ -62,14 +63,12 @@ function isWhitelisted() {
 // --- Favicon badge ---
 
 function findFaviconUrl() {
-  // Check active favicon links (not our own)
-  const links = document.querySelectorAll('link[rel~="icon"], link[rel="shortcut icon"]');
+  const links = document.querySelectorAll(FAVICON_LINK_SELECTOR);
   for (const link of links) {
     if (link.id !== FAVICON_LINK_ID && link.href) return link.href;
   }
-  // Check links we already disabled from a previous badge application
-  const disabled = document.querySelectorAll("link[data-tabtint-rel]");
-  for (const link of disabled) {
+  // Check links we already disabled
+  for (const link of document.querySelectorAll("link[data-tabtint-rel]")) {
     if (link.href) return link.href;
   }
   return `${location.origin}/favicon.ico`;
@@ -77,12 +76,8 @@ function findFaviconUrl() {
 
 function setFaviconLink(dataUrl) {
   // Disable original favicon links so ours takes precedence
-  disabledFaviconLinks.forEach(({ el, rel }) => { el.rel = rel; });
-  disabledFaviconLinks = [];
-
-  document.querySelectorAll('link[rel~="icon"], link[rel="shortcut icon"]').forEach((link) => {
+  document.querySelectorAll(FAVICON_LINK_SELECTOR).forEach((link) => {
     if (link.id !== FAVICON_LINK_ID) {
-      disabledFaviconLinks.push({ el: link, rel: link.rel });
       link.setAttribute("data-tabtint-rel", link.rel);
       link.rel = "tabtint-disabled-icon";
     }
@@ -99,14 +94,19 @@ function setFaviconLink(dataUrl) {
   link.href = dataUrl;
 }
 
+function restoreOriginalFavicons() {
+  document.querySelectorAll("link[data-tabtint-rel]").forEach((link) => {
+    link.rel = link.getAttribute("data-tabtint-rel");
+    link.removeAttribute("data-tabtint-rel");
+  });
+}
+
 function removeFaviconBadge() {
   const ourLink = document.getElementById(FAVICON_LINK_ID);
   if (ourLink) ourLink.remove();
-
-  // Restore original favicon links
-  disabledFaviconLinks.forEach(({ el, rel }) => { el.rel = rel; });
-  disabledFaviconLinks = [];
+  restoreOriginalFavicons();
   originalFaviconHref = null;
+  lastAppliedBadge = null;
 }
 
 function applyFaviconBadge(color) {
@@ -115,10 +115,13 @@ function applyFaviconBadge(color) {
     return;
   }
 
-  // Cache original favicon URL before modifying the DOM
   if (!originalFaviconHref) {
     originalFaviconHref = findFaviconUrl();
   }
+
+  // Skip if nothing changed since last render
+  const key = color + "|" + originalFaviconHref;
+  if (lastAppliedBadge === key) return;
 
   const SIZE = 32;
   const BORDER = 4;
@@ -130,26 +133,25 @@ function applyFaviconBadge(color) {
 
   function drawColorOnly() {
     ctx.clearRect(0, 0, SIZE, SIZE);
-    // Rounded square filled with the border color
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.roundRect(0, 0, SIZE, SIZE, 4);
     ctx.fill();
     setFaviconLink(canvas.toDataURL("image/png"));
+    lastAppliedBadge = key;
   }
 
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.onload = () => {
-    // Draw colored border background
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.roundRect(0, 0, SIZE, SIZE, 4);
     ctx.fill();
-    // Draw original favicon inside
     ctx.drawImage(img, BORDER, BORDER, innerSize, innerSize);
     try {
       setFaviconLink(canvas.toDataURL("image/png"));
+      lastAppliedBadge = key;
     } catch (e) {
       // Canvas tainted by CORS — fall back to color-only icon
       drawColorOnly();
@@ -201,18 +203,21 @@ new MutationObserver((mutations) => {
   }
 }).observe(document.head, { childList: true });
 
-// Fetch settings and initialise
-browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) => {
-  tabId = settings?.tabId ?? null;
-  whitelist = settings?.whitelist || [];
-  if (!isWhitelisted()) return;
-
+function applySettings(settings) {
   configuredTitle = settings?.overlayTitle ?? "";
   borderColor = settings?.borderColor || DEFAULT_BORDER_COLOR;
   showTitle = settings?.showTitle !== false;
   showBorder = settings?.showBorder !== false;
   initialized = true;
   syncVisibility(settings?.enabled !== false);
+}
+
+// Fetch settings and initialise
+browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) => {
+  tabId = settings?.tabId ?? null;
+  whitelist = settings?.whitelist || [];
+  if (!isWhitelisted()) return;
+  applySettings(settings);
 });
 
 function applyBorderColor(color) {
@@ -237,16 +242,9 @@ browser.storage.onChanged.addListener((changes) => {
     return;
   }
 
-  // Domain just became whitelisted (or first load) — fetch full settings
+  // Domain just became whitelisted — fetch full settings
   if (!initialized) {
-    browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) => {
-      configuredTitle = settings?.overlayTitle ?? "";
-      borderColor = settings?.borderColor || DEFAULT_BORDER_COLOR;
-      showTitle = settings?.showTitle !== false;
-      showBorder = settings?.showBorder !== false;
-      initialized = true;
-      syncVisibility(settings?.enabled !== false);
-    });
+    browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then(applySettings);
     return;
   }
 
@@ -305,7 +303,6 @@ browser.storage.onChanged.addListener((changes) => {
   let needSync = false;
   if (changes.showTitle) { showTitle = changes.showTitle.newValue !== false; needSync = true; }
   if (changes.showBorder) { showBorder = changes.showBorder.newValue !== false; needSync = true; }
-  if (changes.whitelist) { needSync = true; }
   if (changes.enabled || needSync) {
     browser.storage.local.get("enabled").then(({ enabled }) => {
       syncVisibility(enabled !== false);

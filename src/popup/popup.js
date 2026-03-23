@@ -76,7 +76,6 @@ async function loadSettings() {
   whitelistCurrentDomain.textContent = activeHostname || "(unknown)";
   activateDomainName.textContent = activeHostname || "(unknown)";
   renderWhitelist();
-  syncActiveState();
 }
 loadSettings();
 
