@@ -10,6 +10,9 @@
   <div id="header-accent"></div>
   <h1>TabTint</h1>
 
+  <button type="button" id="activate-domain" class="activate-btn" hidden>Activate on <span id="activate-domain-name"></span></button>
+
+  <div id="domain-settings">
   <label class="toggle-row">
     <input id="enabled-toggle" type="checkbox" />
     <span>Enabled</span>
@@ -54,9 +57,9 @@
     </fieldset>
 
     <details id="whitelist-settings">
-      <summary>Allowed domains <span id="whitelist-count" class="badge" hidden></span></summary>
+      <summary>Active domains <span id="whitelist-count" class="badge" hidden></span></summary>
       <div class="details-body">
-        <p id="whitelist-hint" class="hint">Active on all domains</p>
+        <p id="whitelist-hint" class="hint">Add domains to activate</p>
         <ul id="whitelist-list" class="domain-list"></ul>
         <button type="button" id="whitelist-add-current" class="action-btn">Add <span id="whitelist-current-domain"></span></button>
         <div class="add-domain-row">
@@ -65,6 +68,8 @@
         </div>
       </div>
     </details>
+  </div>
+
   </div>
 
   <script src="../../node_modules/webextension-polyfill/dist/browser-polyfill.min.js"></script>

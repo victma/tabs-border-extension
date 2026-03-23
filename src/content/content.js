@@ -20,6 +20,8 @@ let showBorder = true;
 
 // Tracks whether the extension is actively rendering for this page
 let isActive = false;
+// Whether full settings have been applied (skipped for non-whitelisted domains)
+let initialized = false;
 
 // Favicon badge state
 let originalFaviconHref = null;
@@ -54,7 +56,7 @@ function updateOverlay() {
 let whitelist = [];
 
 function isWhitelisted() {
-  return whitelist.length === 0 || whitelist.includes(hostname);
+  return whitelist.includes(hostname);
 }
 
 // --- Favicon badge ---
@@ -201,12 +203,15 @@ new MutationObserver((mutations) => {
 
 // Fetch settings and initialise
 browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) => {
+  tabId = settings?.tabId ?? null;
+  whitelist = settings?.whitelist || [];
+  if (!isWhitelisted()) return;
+
   configuredTitle = settings?.overlayTitle ?? "";
   borderColor = settings?.borderColor || DEFAULT_BORDER_COLOR;
-  tabId = settings?.tabId ?? null;
   showTitle = settings?.showTitle !== false;
   showBorder = settings?.showBorder !== false;
-  whitelist = settings?.whitelist || [];
+  initialized = true;
   syncVisibility(settings?.enabled !== false);
 });
 
@@ -221,6 +226,30 @@ function applyBorderColor(color) {
 
 // React to storage changes in real time
 browser.storage.onChanged.addListener((changes) => {
+  // Always keep whitelist up to date
+  if (changes.whitelist) {
+    whitelist = changes.whitelist.newValue || [];
+  }
+
+  // Skip all processing if current domain is not whitelisted
+  if (!isWhitelisted()) {
+    if (isActive) syncVisibility(false);
+    return;
+  }
+
+  // Domain just became whitelisted (or first load) — fetch full settings
+  if (!initialized) {
+    browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) => {
+      configuredTitle = settings?.overlayTitle ?? "";
+      borderColor = settings?.borderColor || DEFAULT_BORDER_COLOR;
+      showTitle = settings?.showTitle !== false;
+      showBorder = settings?.showBorder !== false;
+      initialized = true;
+      syncVisibility(settings?.enabled !== false);
+    });
+    return;
+  }
+
   if (changes.tabSettings && tabId != null) {
     const newEntry = (changes.tabSettings.newValue || {})[tabId] || {};
     const oldEntry = (changes.tabSettings.oldValue || {})[tabId] || {};
@@ -276,7 +305,7 @@ browser.storage.onChanged.addListener((changes) => {
   let needSync = false;
   if (changes.showTitle) { showTitle = changes.showTitle.newValue !== false; needSync = true; }
   if (changes.showBorder) { showBorder = changes.showBorder.newValue !== false; needSync = true; }
-  if (changes.whitelist) { whitelist = changes.whitelist.newValue || []; needSync = true; }
+  if (changes.whitelist) { needSync = true; }
   if (changes.enabled || needSync) {
     browser.storage.local.get("enabled").then(({ enabled }) => {
       syncVisibility(enabled !== false);

@@ -5,6 +5,9 @@
 const DEFAULT_COLOR = "#a21c1c";
 
 const headerAccent = document.getElementById("header-accent");
+const activateDomainBtn = document.getElementById("activate-domain");
+const activateDomainName = document.getElementById("activate-domain-name");
+const domainSettings = document.getElementById("domain-settings");
 const enabledToggle = document.getElementById("enabled-toggle");
 const settingsBody = document.getElementById("settings-body");
 const showTitleToggle = document.getElementById("show-title-toggle");
@@ -42,6 +45,12 @@ function syncEnabledState() {
   settingsBody.classList.toggle("disabled", !enabledToggle.checked);
 }
 
+function syncActiveState() {
+  const active = currentWhitelist.includes(activeHostname);
+  activateDomainBtn.hidden = active || !activeHostname;
+  domainSettings.hidden = !active;
+}
+
 // Load current settings when popup opens
 async function loadSettings() {
   const { enabled, showTitle, showBorder, domainDefaults = {}, tabSettings = {}, whitelist = [] } =
@@ -65,7 +74,9 @@ async function loadSettings() {
 
   currentWhitelist = whitelist;
   whitelistCurrentDomain.textContent = activeHostname || "(unknown)";
+  activateDomainName.textContent = activeHostname || "(unknown)";
   renderWhitelist();
+  syncActiveState();
 }
 loadSettings();
 
@@ -105,6 +116,10 @@ showTitleToggle.addEventListener("change", () => {
 });
 showBorderToggle.addEventListener("change", () => {
   browser.storage.local.set({ showBorder: showBorderToggle.checked });
+});
+activateDomainBtn.addEventListener("click", () => {
+  addToWhitelist(activeHostname);
+  syncActiveState();
 });
 
 setDomainDefaultsBtn.addEventListener("click", () => {
@@ -158,6 +173,7 @@ function renderWhitelist() {
   }
   const alreadyListed = currentWhitelist.includes(activeHostname);
   whitelistAddCurrentBtn.disabled = alreadyListed || !activeHostname;
+  syncActiveState();
 }
 
 function addToWhitelist(domain) {
