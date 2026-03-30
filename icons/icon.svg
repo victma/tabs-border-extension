@@ -1,27 +1,167 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
-  <rect width="400" height="400" fill="none"/>
-
-  <!-- Window body -->
-  <rect x="60" y="140" width="280" height="200" rx="6" fill="none" stroke="#1a1a1a" stroke-width="20"/>
-
-  <!-- Tab shape — all purple, drawn on top -->
-  <path d="M100 140 L100 115 Q100 100 115 100 L185 100 Q200 100 200 115 L200 140" fill="none" stroke="#7B68EE" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
-  <!-- Purple line between tab legs covering the window top edge -->
-  <line x1="90" y1="140" x2="210" y2="140" stroke="#7B68EE" stroke-width="28" stroke-linecap="butt"/>
-
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 400 400"
+   width="400"
+   height="400"
+   version="1.1"
+   id="svg46"
+   sodipodi:docname="tabtint-icon(1).svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs50" />
+  <sodipodi:namedview
+     id="namedview48"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="2.0814726"
+     inkscape:cx="120.82792"
+     inkscape:cy="196.4955"
+     inkscape:window-width="1920"
+     inkscape:window-height="1134"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg46" />
+  <!-- Window body — filled white -->
+  <g
+     id="g1309"
+     transform="matrix(1,0,0,2,0,-68.434576)">
+    <rect
+       x="191.59717"
+       y="68.434578"
+       width="201.32025"
+       height="31.039627"
+       fill="#4ecdc4"
+       id="rect14-6"
+       style="stroke-width:1.10735"
+       ry="14.975876" />
+    <rect
+       style="fill:#4ecdc4;fill-opacity:1;stroke-width:1.06143"
+       id="rect736"
+       width="34.97031"
+       height="15.519814"
+       x="357.94711"
+       y="83.954391" />
+  </g>
+  <!-- Tab shape — filled -->
   <!-- Colorful border — left -->
-  <line x1="60" y1="155" x2="60" y2="240" stroke="#E85D75" stroke-width="28" stroke-linecap="round"/>
-  <line x1="60" y1="240" x2="60" y2="330" stroke="#F5A623" stroke-width="28" stroke-linecap="round"/>
-
-  <!-- Colorful border — bottom -->
-  <line x1="70" y1="340" x2="200" y2="340" stroke="#4ECDC4" stroke-width="28" stroke-linecap="round"/>
-  <line x1="200" y1="340" x2="330" y2="340" stroke="#7B68EE" stroke-width="28" stroke-linecap="round"/>
-
   <!-- Colorful border — right -->
-  <line x1="340" y1="330" x2="340" y2="240" stroke="#E85D75" stroke-width="28" stroke-linecap="round"/>
-  <line x1="340" y1="240" x2="340" y2="155" stroke="#F5A623" stroke-width="28" stroke-linecap="round"/>
-
-  <!-- Colorful border — top (excluding tab area) -->
-  <line x1="330" y1="140" x2="210" y2="140" stroke="#4ECDC4" stroke-width="28" stroke-linecap="round"/>
-  <line x1="90" y1="140" x2="70" y2="140" stroke="#7B68EE" stroke-width="28" stroke-linecap="round"/>
+  <!-- Colorful border — bottom -->
+  <!-- Colorful border — top right -->
+  <!-- Colorful border — top left (extends to right edge of tab) -->
+  <g
+     id="g1299"
+     transform="translate(21.035211,-2.6702881e-5)">
+    <rect
+       x="24.71957"
+       y="68.434578"
+       width="188.61145"
+       height="62.079308"
+       fill="#7b68ee"
+       id="rect20"
+       style="stroke-width:1.51581" />
+    <path
+       d="m 69.218473,81.737279 v -44.38145 q 0,-25.360828 22.171162,-25.360828 h 99.770225 q 22.17116,0 22.17116,25.360828 v 44.38145"
+       fill="#7b68ee"
+       stroke="none"
+       id="path4"
+       style="stroke-width:1.18562" />
+  </g>
+  <g
+     id="g1292"
+     transform="matrix(2.2024313,0,0,1,-13.916283,0)">
+    <rect
+       x="11.573454"
+       y="68.434578"
+       width="31.039627"
+       height="148.54678"
+       fill="#e85d75"
+       id="rect6"
+       style="stroke-width:1.10856"
+       ry="13.656572" />
+    <rect
+       style="fill:#e85d75;fill-opacity:1"
+       id="rect1046"
+       width="15.519813"
+       height="31.039627"
+       x="27.093269"
+       y="68.434578" />
+  </g>
+  <rect
+     x="11.573454"
+     y="204.43051"
+     width="68.362648"
+     height="121.74461"
+     fill="#f5a623"
+     id="rect8"
+     style="stroke-width:1.46763" />
+  <g
+     id="g1277"
+     transform="matrix(1,0,0,2.2686459,0,-463.7258)">
+    <rect
+       x="11.573454"
+       y="334.48853"
+       width="201.32025"
+       height="31.039627"
+       fill="#4ecdc4"
+       id="rect14"
+       style="stroke-width:1.10735"
+       ry="14.975876" />
+    <rect
+       style="fill:#4ecdc4;fill-opacity:1;stroke-width:1.04947"
+       id="rect406"
+       width="34.127663"
+       height="13.693144"
+       x="11.627116"
+       y="334.48853"
+       ry="0" />
+  </g>
+  <rect
+     x="176.37923"
+     y="295.07123"
+     width="161.4314"
+     height="70.456909"
+     fill="#7b68ee"
+     id="rect16"
+     style="stroke-width:1.53679" />
+  <g
+     id="g1285"
+     transform="matrix(2.4855183,0,0,1,-583.68603,0)">
+    <rect
+       x="361.87781"
+       y="217.22133"
+       width="31.039627"
+       height="148.30678"
+       fill="#e85d75"
+       id="rect6-3"
+       style="stroke-width:1.10766"
+       ry="13.634508" />
+    <rect
+       style="fill:#e85d75;fill-opacity:1"
+       id="rect799"
+       width="17.736938"
+       height="35.228443"
+       x="361.87781"
+       y="330.29968"
+       rx="9.5367432e-06" />
+  </g>
+  <rect
+     x="315.76788"
+     y="130.51384"
+     width="77.149544"
+     height="109.1922"
+     fill="#f5a623"
+     id="rect10"
+     style="stroke-width:1.49842" />
+  <!-- Round outer corners -->
 </svg>
