@@ -10,8 +10,7 @@ const FAVICON_LINK_SELECTOR = 'link[rel~="icon"], link[rel="shortcut icon"]';
 // The current configured title. Empty/undefined means "use tab title".
 let configuredTitle = "";
 
-const DEFAULT_BORDER_COLOR = "#a21c1c";
-let borderColor = DEFAULT_BORDER_COLOR;
+let borderColor = DEFAULT_COLOR;
 
 // Set by the background script so we can look up per-tab settings
 let tabId = null;
@@ -55,10 +54,6 @@ function updateOverlay() {
 }
 
 let whitelist = [];
-
-function isWhitelisted() {
-  return whitelist.some((pattern) => matchesPattern(pattern, hostname));
-}
 
 // --- Favicon badge ---
 
@@ -164,7 +159,7 @@ function applyFaviconBadge(color) {
 // --- Visibility sync ---
 
 function syncVisibility(enabled) {
-  isActive = enabled && isWhitelisted();
+  isActive = enabled && isWhitelisted(whitelist, hostname);
 
   if (isActive && showTitle) ensureOverlay();
   else document.getElementById(OVERLAY_ID)?.remove();
@@ -205,7 +200,7 @@ new MutationObserver((mutations) => {
 
 function applySettings(settings) {
   configuredTitle = settings?.overlayTitle ?? "";
-  borderColor = settings?.borderColor || DEFAULT_BORDER_COLOR;
+  borderColor = settings?.borderColor || DEFAULT_COLOR;
   showTitle = settings?.showTitle !== false;
   showBorder = settings?.showBorder !== false;
   initialized = true;
@@ -216,12 +211,12 @@ function applySettings(settings) {
 browser.runtime.sendMessage({ type: "GET_SETTINGS", hostname }).then((settings) => {
   tabId = settings?.tabId ?? null;
   whitelist = settings?.whitelist || [];
-  if (!isWhitelisted()) return;
+  if (!isWhitelisted(whitelist, hostname)) return;
   applySettings(settings);
 });
 
 function applyBorderColor(color) {
-  borderColor = color || DEFAULT_BORDER_COLOR;
+  borderColor = color || DEFAULT_COLOR;
   const el = document.getElementById(OVERLAY_ID);
   if (el) el.style.backgroundColor = borderColor;
   const frame = document.getElementById(FRAME_ID);
@@ -237,8 +232,9 @@ browser.storage.onChanged.addListener((changes) => {
   }
 
   // Skip all processing if current domain is not whitelisted
-  if (!isWhitelisted()) {
+  if (!isWhitelisted(whitelist, hostname)) {
     if (isActive) syncVisibility(false);
+    initialized = false;
     return;
   }
 
@@ -251,26 +247,31 @@ browser.storage.onChanged.addListener((changes) => {
   if (changes.tabSettings && tabId != null) {
     const newEntry = (changes.tabSettings.newValue || {})[tabId] || {};
     const oldEntry = (changes.tabSettings.oldValue || {})[tabId] || {};
-    if (newEntry.title !== oldEntry.title) {
-      configuredTitle = newEntry.title || "";
+    const titleChanged = newEntry.title !== oldEntry.title;
+    const colorChanged = newEntry.color !== oldEntry.color;
+
+    if (titleChanged && newEntry.title) {
+      configuredTitle = newEntry.title;
       updateOverlay();
     }
-    if (newEntry.title !== oldEntry.title && !newEntry.title) {
-      // Per-tab title cleared — fall back to domain then global
-      browser.storage.local.get("domainDefaults").then(({ domainDefaults = {} }) => {
-        configuredTitle = resolveDomainDefaults(domainDefaults, hostname, whitelist)?.title || "";
-        updateOverlay();
-      });
+    if (colorChanged && newEntry.color) {
+      applyBorderColor(newEntry.color);
     }
-    if (newEntry.color !== oldEntry.color) {
-      // Per-tab color changed — resolve full fallback chain
-      if (newEntry.color) {
-        applyBorderColor(newEntry.color);
-      } else {
-        browser.storage.local.get("domainDefaults").then(({ domainDefaults = {} }) => {
-          applyBorderColor(resolveDomainDefaults(domainDefaults, hostname, whitelist)?.color || "");
-        });
-      }
+
+    // Fall back to domain defaults for cleared values
+    const needTitleFallback = titleChanged && !newEntry.title;
+    const needColorFallback = colorChanged && !newEntry.color;
+    if (needTitleFallback || needColorFallback) {
+      browser.storage.local.get("domainDefaults").then(({ domainDefaults = {} }) => {
+        const domain = resolveDomainDefaults(domainDefaults, hostname, whitelist);
+        if (needTitleFallback) {
+          configuredTitle = domain?.title || "";
+          updateOverlay();
+        }
+        if (needColorFallback) {
+          applyBorderColor(domain?.color || "");
+        }
+      });
     }
   }
 

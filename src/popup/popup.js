@@ -2,8 +2,6 @@
 // Runs in its own page context (the popup window).
 // Has access to full browser.* API but its own isolated DOM.
 
-const DEFAULT_COLOR = "#a21c1c";
-
 const headerAccent = document.getElementById("header-accent");
 const activateDomainBtn = document.getElementById("activate-domain");
 const activateDomainName = document.getElementById("activate-domain-name");
@@ -34,7 +32,7 @@ let currentWhitelist = [];
 let defaultsKey = "";
 
 function isHostWhitelisted(host) {
-  return currentWhitelist.some((p) => matchesPattern(p, host));
+  return isWhitelisted(currentWhitelist, host);
 }
 
 function setColor(hex) {
