@@ -23,8 +23,7 @@ const whitelistHint = document.getElementById("whitelist-hint");
 const whitelistList = document.getElementById("whitelist-list");
 const whitelistInput = document.getElementById("whitelist-input");
 const whitelistAddBtn = document.getElementById("whitelist-add");
-const whitelistAddCurrentBtn = document.getElementById("whitelist-add-current");
-const whitelistCurrentDomain = document.getElementById("whitelist-current-domain");
+const whitelistSuggestions = document.getElementById("whitelist-suggestions");
 
 let activeTabId = null;
 let activeHostname = "";
@@ -75,7 +74,6 @@ async function loadSettings() {
   setColor(perTab?.color || domain?.color || DEFAULT_COLOR);
 
   clearDomainColorBtn.hidden = !domain;
-  whitelistCurrentDomain.textContent = activeHostname || "(unknown)";
   activateDomainName.textContent = activeHostname || "(unknown)";
   renderWhitelist();
 }
@@ -151,6 +149,32 @@ function saveWhitelist() {
   browser.storage.local.set({ whitelist: currentWhitelist });
 }
 
+function whitelistSuggestionsFor(host) {
+  if (!host) return [];
+  const patterns = [host];
+  const dot = host.indexOf(".");
+  if (dot > 0) {
+    const parent = host.slice(dot + 1);
+    if (parent.includes(".")) {
+      patterns.push(`*.${parent}`);
+    }
+  }
+  return patterns;
+}
+
+function renderSuggestions() {
+  whitelistSuggestions.innerHTML = "";
+  for (const pattern of whitelistSuggestionsFor(activeHostname)) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "action-btn";
+    btn.textContent = `Add ${pattern}`;
+    btn.disabled = currentWhitelist.includes(pattern);
+    btn.addEventListener("click", () => addToWhitelist(pattern));
+    whitelistSuggestions.appendChild(btn);
+  }
+}
+
 async function renderWhitelist() {
   defaultsKey = currentWhitelist.includes(activeHostname)
     ? activeHostname
@@ -193,7 +217,7 @@ async function renderWhitelist() {
     li.appendChild(btn);
     whitelistList.appendChild(li);
   }
-  whitelistAddCurrentBtn.disabled = currentWhitelist.includes(activeHostname) || !activeHostname;
+  renderSuggestions();
   syncActiveState();
 }
 
@@ -205,10 +229,6 @@ function addToWhitelist(domain) {
   saveWhitelist();
   renderWhitelist();
 }
-
-whitelistAddCurrentBtn.addEventListener("click", () => {
-  addToWhitelist(activeHostname);
-});
 
 whitelistAddBtn.addEventListener("click", () => {
   addToWhitelist(whitelistInput.value);

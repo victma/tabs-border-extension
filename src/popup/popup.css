@@ -245,6 +245,15 @@ details#whitelist-settings summary::-webkit-details-marker { display: none; }
 }
 .domain-list .remove-domain:hover { color: #e04080; }
 
+.whitelist-suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.whitelist-suggestions:not(:empty) {
+  margin-bottom: 8px;
+}
+
 .add-domain-row {
   display: flex;
   gap: 8px;
@@ -260,8 +269,6 @@ details#whitelist-settings summary::-webkit-details-marker { display: none; }
   width: auto;
   flex-shrink: 0;
 }
-
-#whitelist-current-domain { font-weight: 600; }
 
 /* --- Activate button (inactive domain) --- */
 .activate-btn {
