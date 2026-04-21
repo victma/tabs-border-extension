@@ -243,3 +243,8 @@ whitelistInput.addEventListener("keydown", (e) => {
     whitelistInput.value = "";
   }
 });
+
+browser.storage.onChanged.addListener((changes, area) => {
+  if (area !== "local") return;
+  if (changes.domainDefaults) renderWhitelist();
+});
