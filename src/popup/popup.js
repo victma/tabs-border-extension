@@ -15,6 +15,7 @@ const tabColor = document.getElementById("tab-color");
 const colorPreview = document.getElementById("color-preview");
 const swatches = document.querySelectorAll(".swatch");
 const domainNameEl = document.getElementById("domain-name");
+const clearDomainNameEl = document.getElementById("clear-domain-name");
 const setDomainDefaultsBtn = document.getElementById("set-domain-defaults");
 const clearDomainColorBtn = document.getElementById("clear-domain-color");
 
@@ -180,6 +181,7 @@ async function renderWhitelist() {
     ? activeHostname
     : findMatchingPattern(currentWhitelist, activeHostname) || activeHostname;
   domainNameEl.textContent = defaultsKey || "(unknown)";
+  clearDomainNameEl.textContent = defaultsKey || "(unknown)";
 
   const count = currentWhitelist.length;
   whitelistHint.hidden = count > 0;

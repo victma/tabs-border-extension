@@ -10,7 +10,7 @@
   <div id="header-accent"></div>
   <h1>TabTint</h1>
 
-  <button type="button" id="activate-domain" class="action-btn activate-btn" hidden>Activate on <span id="activate-domain-name"></span></button>
+  <button type="button" id="activate-domain" class="action-btn activate-btn" hidden>Turn on for <span id="activate-domain-name"></span></button>
 
   <div id="domain-settings">
   <label class="toggle-row">
@@ -31,10 +31,10 @@
     </div>
 
     <fieldset id="tab-settings">
-      <legend>Tab settings</legend>
-      <label for="tab-title">Title</label>
-      <input id="tab-title" type="text" placeholder="Tab title" />
-      <label>Color</label>
+      <legend>This tab</legend>
+      <label for="tab-title">Label</label>
+      <input id="tab-title" type="text" placeholder="Shown on the tab (optional)" />
+      <label>Border color</label>
       <div class="color-swatches" id="color-swatches">
         <button type="button" class="swatch" data-color="#a21c1c" style="background:#a21c1c" title="#a21c1c"></button>
         <button type="button" class="swatch" data-color="#e06c2e" style="background:#e06c2e" title="#e06c2e"></button>
@@ -51,8 +51,8 @@
         <input id="tab-color" type="text" placeholder="#a21c1c" maxlength="7" />
       </div>
       <div class="domain-actions">
-        <button type="button" id="set-domain-defaults" class="action-btn">Save as default for <span id="domain-name"></span></button>
-        <button type="button" id="clear-domain-color" class="link-btn" hidden>Clear domain default</button>
+        <button type="button" id="set-domain-defaults" class="action-btn">Set as <span id="domain-name"></span> default</button>
+        <button type="button" id="clear-domain-color" class="link-btn" hidden>Clear <span id="clear-domain-name"></span> default</button>
       </div>
     </fieldset>
   </div>
@@ -62,11 +62,11 @@
   <details id="whitelist-settings">
     <summary>Active domains <span id="whitelist-count" class="badge" hidden></span></summary>
     <div class="details-body">
-      <p id="whitelist-hint" class="hint">Add domains to activate</p>
+      <p id="whitelist-hint" class="hint">Add a domain to start tinting its tabs</p>
       <ul id="whitelist-list" class="domain-list"></ul>
       <div id="whitelist-suggestions" class="whitelist-suggestions"></div>
       <div class="add-domain-row">
-        <input id="whitelist-input" type="text" placeholder="other domain..." />
+        <input id="whitelist-input" type="text" placeholder="example.com or *.example.com" />
         <button type="button" id="whitelist-add" class="action-btn">Add</button>
       </div>
     </div>
