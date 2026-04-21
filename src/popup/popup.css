@@ -268,5 +268,6 @@ details#whitelist-settings summary::-webkit-details-marker { display: none; }
   padding: 10px 12px;
   font-size: 13px;
   font-weight: 500;
+  margin-bottom: 16px;
 }
 #activate-domain-name { font-weight: 600; }
