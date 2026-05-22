@@ -28,7 +28,8 @@ let originalFaviconHref = null;
 let lastAppliedBadge = null;
 
 function getDisplayTitle() {
-  return configuredTitle || document.title || hostname;
+  const raw = configuredTitle || document.title || hostname;
+  return applyTitleTemplate(raw, whitelist, hostname);
 }
 
 function ensureOverlay() {

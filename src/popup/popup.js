@@ -56,27 +56,32 @@ function syncActiveState() {
 
 // Load current settings when popup opens
 async function loadSettings() {
-  const { enabled, showTitle, showBorder, domainDefaults = {}, tabSettings = {}, whitelist = [] } =
-    await browser.storage.local.get(["enabled", "showTitle", "showBorder", "domainDefaults", "tabSettings", "whitelist"]);
+  const [
+    { enabled, showTitle, showBorder, domainDefaults = {}, tabSettings = {}, whitelist = [] },
+    [tab],
+  ] = await Promise.all([
+    browser.storage.local.get(["enabled", "showTitle", "showBorder", "domainDefaults", "tabSettings", "whitelist"]),
+    browser.tabs.query({ active: true, currentWindow: true }),
+  ]);
   enabledToggle.checked = enabled ?? true;
   showTitleToggle.checked = showTitle ?? true;
   showBorderToggle.checked = showBorder ?? true;
   syncEnabledState();
 
-  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   activeTabId = tab?.id ?? null;
   activeHostname = tab?.url ? new URL(tab.url).hostname : "";
-
   currentWhitelist = whitelist;
 
   const perTab = activeTabId != null ? tabSettings[activeTabId] : undefined;
   const domain = resolveDomainDefaults(domainDefaults, activeHostname, whitelist);
-  tabTitle.value = perTab?.title || domain?.title || "";
+  setDefaultsKey(findDefaultsKey(currentWhitelist, activeHostname));
+  // Show the raw stored title so round-tripping doesn't persist a substituted template.
+  tabTitle.value = perTab?.title || domainDefaults[defaultsKey]?.title || "";
   setColor(perTab?.color || domain?.color || DEFAULT_COLOR);
 
   clearDomainColorBtn.hidden = !domain;
   activateDomainName.textContent = activeHostname || "(unknown)";
-  renderWhitelist();
+  renderWhitelist(domainDefaults);
 }
 loadSettings();
 
@@ -104,6 +109,13 @@ tabColor.addEventListener("input", () => {
     saveTabSettings();
   }
 });
+
+function setDefaultsKey(key) {
+  defaultsKey = key;
+  tabTitle.placeholder = key.includes("*")
+    ? "Shown on the tab (use $1 for matched part)"
+    : "Shown on the tab (optional)";
+}
 
 tabTitle.addEventListener("input", saveTabSettings);
 
@@ -176,10 +188,8 @@ function renderSuggestions() {
   }
 }
 
-async function renderWhitelist() {
-  defaultsKey = currentWhitelist.includes(activeHostname)
-    ? activeHostname
-    : findMatchingPattern(currentWhitelist, activeHostname) || activeHostname;
+async function renderWhitelist(domainDefaults) {
+  setDefaultsKey(findDefaultsKey(currentWhitelist, activeHostname));
   domainNameEl.textContent = defaultsKey || "(unknown)";
   clearDomainNameEl.textContent = defaultsKey || "(unknown)";
 
@@ -188,7 +198,9 @@ async function renderWhitelist() {
   whitelistCount.hidden = count === 0;
   whitelistCount.textContent = count;
 
-  const { domainDefaults = {} } = await browser.storage.local.get("domainDefaults");
+  if (!domainDefaults) {
+    ({ domainDefaults = {} } = await browser.storage.local.get("domainDefaults"));
+  }
 
   whitelistList.innerHTML = "";
   for (const entry of currentWhitelist) {
